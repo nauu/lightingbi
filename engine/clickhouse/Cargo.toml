@@ -1,0 +1,10 @@
+[package]
+name = "engine"
+version = "0.1.0"
+authors = ["zhukai <zhukai@apache.org>"]
+edition = "2018"
+
+[dependencies]
+#clickhouse-rs = {path="../../clickhouse-rs/clickhouse-rs-cityhash-sys", version="*"}
+clickhouse-rs = { git = "https://github.com/suharev7/clickhouse-rs", rev = "a1d2b29d0f01de2b3d9183ae95a61c6c72ffb8c4" }
+tokio = {version = "*", features = ["full"]}
