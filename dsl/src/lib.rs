@@ -1,3 +1,5 @@
+mod query;
+
 #[cfg(test)]
 mod tests {
     #[test]
