@@ -1,67 +1,96 @@
-#[derive(Debug, Copy, Clone)]
-pub struct Query {
-    //name: String,
-    dimension: Dimension,
-    measure: Measure,
+#[derive(Debug, Clone)]
+pub struct QueryBuilder {
+    rows: Vec<Dimension>,
+    columns: Vec<Dimension>,
+    measures: Vec<Measure>,
 }
 
-impl Query {
-    pub fn new(dimension: Dimension, measure: Measure) -> Query {
-        Query {
-            // name,
-            dimension,
-            measure,
+impl QueryBuilder {
+    pub fn new() -> QueryBuilder {
+        QueryBuilder {
+            rows: vec![],
+            columns: vec![],
+            measures: vec![],
         }
     }
 
-    // fn select(&self) -> Query {
-    //     Query {
-    //         name,
-    //         dimension,
-    //         measure,
-    //     }
-    // }
-
-    fn dim(&self) -> Query {
-        Query {
-            // name: self.name,
-            dimension: self.dimension,
-            measure: self.measure,
-        }
+    pub fn row(mut self, rows: &mut Vec<Dimension>) -> Self {
+        self.rows.append(rows);
+        self
     }
 
-    fn meas(&self) -> Query {
-        Query {
-            dimension: self.dimension,
-            measure: self.measure,
-        }
+    pub fn col(mut self, columns: &mut Vec<Dimension>) -> Self {
+        self.columns.append(columns);
+        self
     }
 
-    fn order(&self) -> Query {
-        Query {
-            dimension: self.dimension,
-            measure: self.measure,
-        }
+    pub fn meas(mut self, measures: &mut Vec<Measure>) -> Self {
+        self.measures.append(measures);
+        self
     }
 
-    fn filter(&self) -> Query {
-        Query {
-            dimension: self.dimension,
-            measure: self.measure,
-        }
+    pub fn order(&self, orders: Vec<&str>) -> &Self {
+        self
+    }
+
+    pub fn filter(&self, filters: Vec<&str>) -> &Self {
+        self
     }
 }
 
 ///维度
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Clone)]
 pub struct Dimension {
-    // name: String,
+    dimension_type: DimensionType,
+    field_name: String,
+    field_type: DataType,
+}
+
+impl Dimension {
+    pub fn new_row(field_name: String, field_type: DataType) -> Dimension {
+        Dimension {
+            dimension_type: DimensionType::Row,
+            field_name,
+            field_type,
+        }
+    }
+
+    pub fn new_col(field_name: String, field_type: DataType) -> Dimension {
+        Dimension {
+            dimension_type: DimensionType::Column,
+            field_name,
+            field_type,
+        }
+    }
 }
 
 //度量
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Clone)]
 pub struct Measure {
-    // name: String,
+    measure_name: String,
+    measure_type: DataType,
+}
+
+impl Measure {
+    pub fn new(measure_name: String, measure_type: DataType) -> Measure {
+        Measure {
+            measure_name,
+            measure_type,
+        }
+    }
+}
+
+#[derive(Debug, Copy, Clone)]
+pub enum DimensionType {
+    Row,
+    Column,
+}
+
+#[derive(Debug, Copy, Clone)]
+pub enum DataType {
+    Text,
+    Number,
+    Date,
 }
 
 #[cfg(test)]
@@ -70,17 +99,22 @@ mod tests {
 
     #[test]
     fn it_works() {
-        let d = Dimension {
-            //name: "".to_string(),
-        };
-        let m = Measure {
-          //  name: "".to_string(),
-        };
+        let qb = QueryBuilder::new()
+            .row(&mut vec![
+                Dimension::new_row(String::from("row1"), DataType::Text),
+                Dimension::new_row(String::from("row2"), DataType::Date),
+            ])
+            .col(&mut vec![
+                Dimension::new_col(String::from("col1"), DataType::Text),
+                Dimension::new_col(String::from("col2"), DataType::Date),
+                Dimension::new_col(String::from("col3"), DataType::Number),
+            ])
+            .meas(&mut vec![
+                Measure::new(String::from("val1"), DataType::Number),
+                Measure::new(String::from("val2"), DataType::Number),
+                Measure::new(String::from("val3"), DataType::Number),
+            ]);
 
-        let q = Query::new(d, m);
-        q.dim().meas().order().filter();
-        println!("{:?}", q);
-
-        assert_eq!(2 + 2, 4);
+        println!("{:?}", qb);
     }
 }
