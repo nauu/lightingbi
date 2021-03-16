@@ -3,6 +3,8 @@ pub struct QueryBuilder {
     rows: Vec<Dimension>,
     columns: Vec<Dimension>,
     measures: Vec<Measure>,
+    orders: Vec<Measure>,
+    filters: Vec<Measure>,
 }
 
 impl QueryBuilder {
@@ -11,6 +13,8 @@ impl QueryBuilder {
             rows: vec![],
             columns: vec![],
             measures: vec![],
+            orders: vec![],
+            filters: vec![],
         }
     }
 
@@ -38,46 +42,65 @@ impl QueryBuilder {
     }
 }
 
+#[derive(Debug, Clone)]
+pub struct Field {
+    field_name: String,
+    field_type: DataType,
+    display_name: String,
+}
+
+impl Field {
+    fn new(field_name: String, field_type: DataType, mut display_name: String) -> Self {
+        if display_name.is_empty() {
+            display_name = field_name.to_owned();
+        }
+        Field {
+            field_name,
+            field_type,
+            display_name,
+        }
+    }
+}
+
 ///维度
 #[derive(Debug, Clone)]
 pub struct Dimension {
     dimension_type: DimensionType,
-    field_name: String,
-    field_type: DataType,
+    field: Field,
 }
 
 impl Dimension {
-    pub fn new_row(field_name: String, field_type: DataType) -> Dimension {
+    pub fn new_row(field: Field) -> Dimension {
         Dimension {
             dimension_type: DimensionType::Row,
-            field_name,
-            field_type,
+            field,
         }
     }
 
-    pub fn new_col(field_name: String, field_type: DataType) -> Dimension {
+    pub fn new_col(field: Field) -> Dimension {
         Dimension {
             dimension_type: DimensionType::Column,
-            field_name,
-            field_type,
+            field,
         }
     }
 }
 
-//度量
+///度量
 #[derive(Debug, Clone)]
 pub struct Measure {
-    measure_name: String,
-    measure_type: DataType,
+    field: Field,
 }
 
 impl Measure {
-    pub fn new(measure_name: String, measure_type: DataType) -> Measure {
-        Measure {
-            measure_name,
-            measure_type,
-        }
+    fn new(field: Field) -> Measure {
+        Measure { field }
     }
+}
+
+#[derive(Debug, Clone)]
+pub struct Order {
+    field_name: String,
+    measure_type: DataType,
 }
 
 #[derive(Debug, Copy, Clone)]
@@ -99,21 +122,29 @@ mod tests {
 
     #[test]
     fn it_works() {
+        let f1 = Field::new(String::from("field1"), DataType::Text, String::from("单位"));
+        let f2 = Field::new(String::from("field2"), DataType::Text, String::from("员工"));
+        let f3 = Field::new(String::from("field3"), DataType::Date, String::from("时间"));
+        let f4 = Field::new(
+            String::from("field4"),
+            DataType::Number,
+            String::from("人数"),
+        );
+        let f5 = Field::new(
+            String::from("field5"),
+            DataType::Number,
+            String::from("价格"),
+        );
+        let f6 = Field::new(
+            String::from("field6"),
+            DataType::Number,
+            String::from("数量"),
+        );
+
         let qb = QueryBuilder::new()
-            .row(&mut vec![
-                Dimension::new_row(String::from("row1"), DataType::Text),
-                Dimension::new_row(String::from("row2"), DataType::Date),
-            ])
-            .col(&mut vec![
-                Dimension::new_col(String::from("col1"), DataType::Text),
-                Dimension::new_col(String::from("col2"), DataType::Date),
-                Dimension::new_col(String::from("col3"), DataType::Number),
-            ])
-            .meas(&mut vec![
-                Measure::new(String::from("val1"), DataType::Number),
-                Measure::new(String::from("val2"), DataType::Number),
-                Measure::new(String::from("val3"), DataType::Number),
-            ]);
+            .row(&mut vec![Dimension::new_row(f1), Dimension::new_row(f3)])
+            .col(&mut vec![Dimension::new_col(f2), Dimension::new_col(f4)])
+            .meas(&mut vec![Measure::new(f5), Measure::new(f6)]);
 
         println!("{:?}", qb);
     }
