@@ -3,7 +3,7 @@ pub struct QueryBuilder {
     rows: Vec<Dimension>,
     columns: Vec<Dimension>,
     measures: Vec<Measure>,
-    orders: Vec<Measure>,
+    orders: Vec<Order>,
     filters: Vec<Measure>,
 }
 
@@ -33,7 +33,8 @@ impl QueryBuilder {
         self
     }
 
-    pub fn order(&self, orders: Vec<&str>) -> &Self {
+    pub fn order(mut self, orders: &mut Vec<Order>) -> Self {
+        self.orders.append(orders);
         self
     }
 
@@ -99,8 +100,50 @@ impl Measure {
 
 #[derive(Debug, Clone)]
 pub struct Order {
-    field_name: String,
-    measure_type: DataType,
+    field: Field,
+    order_type: OrderType,
+}
+
+impl Order {
+    fn new(field: Field) -> Self {
+        Order {
+            field,
+            order_type: OrderType::ASC,
+        }
+    }
+
+    fn new_with_order(field: Field, order_type: OrderType) -> Self {
+        Order { field, order_type }
+    }
+}
+
+pub struct Filter {
+    field: Field,
+}
+
+impl Filter {
+
+    //=
+    fn eq(self, f1: Field, f2: Field) {
+
+    }
+    //!=
+    fn ne(self, f1: Field, f2: Field) {}
+
+    //>
+    fn gt(self, f1: Field, f2: Field) {}
+    //<
+    fn lt(self, f1: Field, f2: Field) {}
+
+    //>=
+    fn ge(self, f1: Field, f2: Field) {}
+
+    //<=
+    fn le(self, f1: Field, f2: Field) {}
+
+    fn and(){}
+
+    fn or(){}
 }
 
 #[derive(Debug, Copy, Clone)]
@@ -114,6 +157,12 @@ pub enum DataType {
     Text,
     Number,
     Date,
+}
+
+#[derive(Debug, Copy, Clone)]
+pub enum OrderType {
+    ASC,
+    DESC,
 }
 
 #[cfg(test)]
@@ -144,7 +193,8 @@ mod tests {
         let qb = QueryBuilder::new()
             .row(&mut vec![Dimension::new_row(f1), Dimension::new_row(f3)])
             .col(&mut vec![Dimension::new_col(f2), Dimension::new_col(f4)])
-            .meas(&mut vec![Measure::new(f5), Measure::new(f6)]);
+            .meas(&mut vec![Measure::new(f5), Measure::new(f6.clone())])
+            .order(&mut vec![Order::new(f6)]);
 
         println!("{:?}", qb);
     }
