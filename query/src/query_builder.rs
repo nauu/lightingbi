@@ -122,12 +122,9 @@ pub struct Filter {
 }
 
 impl Filter {
-
     //=
-    fn eq(self, f1: Field, f2: Field) {
-
-    }
-    //!=
+    fn eq(self, f1: Field, f2: Field) {}
+    // !=
     fn ne(self, f1: Field, f2: Field) {}
 
     //>
@@ -141,9 +138,9 @@ impl Filter {
     //<=
     fn le(self, f1: Field, f2: Field) {}
 
-    fn and(){}
+    fn and() {}
 
-    fn or(){}
+    fn or() {}
 }
 
 #[derive(Debug, Copy, Clone)]

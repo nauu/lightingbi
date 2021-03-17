@@ -38,3 +38,4 @@ fuzz-incremental/
 /last_tikv.toml
 /raft/
 /Cargo.lock
+/server/static/yarn.lock

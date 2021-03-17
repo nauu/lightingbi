@@ -3,8 +3,7 @@ use actix_session::{CookieSession, Session};
 use actix_utils::mpsc;
 use actix_web::http::{header, Method, StatusCode};
 use actix_web::{
-    error, get, guard, middleware, web, App, Error, HttpRequest, HttpResponse,
-    HttpServer, Result,
+    error, get, guard, middleware, web, App, Error, HttpRequest, HttpResponse, HttpServer, Result,
 };
 use std::{env, io};
 
@@ -51,10 +50,7 @@ async fn response_body(path: web::Path<String>) -> HttpResponse {
 }
 
 /// handler with path parameters like `/user/{name}/`
-async fn with_param(
-    req: HttpRequest,
-    web::Path((name,)): web::Path<(String,)>,
-) -> HttpResponse {
+async fn with_param(req: HttpRequest, web::Path((name,)): web::Path<(String,)>) -> HttpResponse {
     println!("{:?}", req);
 
     HttpResponse::Ok()
@@ -80,9 +76,7 @@ async fn main() -> io::Result<()> {
             // with path parameters
             .service(web::resource("/user/{name}").route(web::get().to(with_param)))
             // async response body
-            .service(
-                web::resource("/async-body/{name}").route(web::get().to(response_body)),
-            )
+            .service(web::resource("/async-body/{name}").route(web::get().to(response_body)))
             .service(
                 web::resource("/test").to(|req: HttpRequest| match *req.method() {
                     Method::GET => HttpResponse::Ok(),
@@ -98,11 +92,18 @@ async fn main() -> io::Result<()> {
             }))
             // static files
             .service(fs::Files::new("/static", "static").show_files_listing())
+            .service(fs::Files::new("/assets", "static/dist/assets").show_files_listing())
+            .service(fs::Files::new("/resource", "static/dist/resource").show_files_listing())
+            .service(fs::Files::new(
+                "/_app.config.js",
+                "static/dist/_app.config.js",
+            ))
             // redirect
             .service(web::resource("/").route(web::get().to(|req: HttpRequest| {
                 println!("{:?}", req);
                 HttpResponse::Found()
-                    .header(header::LOCATION, "static/welcome.html")
+                    //.header(header::LOCATION, "static/welcome.html")
+                    .header(header::LOCATION, "static/dist/index.html")
                     .finish()
             })))
             // default
@@ -118,7 +119,7 @@ async fn main() -> io::Result<()> {
                     ),
             )
     })
-        .bind("127.0.0.1:8080")?
-        .run()
-        .await
+    .bind("127.0.0.1:8080")?
+    .run()
+    .await
 }
