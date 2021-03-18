@@ -53,17 +53,15 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let database_url = "tcp://10.37.129.9:9000/default?compression=lz4&ping_timeout=42ms";
 
     let qe = ClickHouseEngine::new(database_url);
-    qe.ddl_str(ddl);
-    qe.insert_block("payment1", block);
+    qe.ddl_str(ddl).await?;
+    qe.insert_block("payment1", block).await?;
 
-    let block = qe.query_str("SELECT * FROM payment");
-
+    let block = qe.query_str("SELECT * FROM payment1").await?;
     for row in block.rows() {
         let id: u32 = row.get("customer_id")?;
         let amount: u32 = row.get("amount")?;
         let name: Option<&str> = row.get("account_name")?;
-        println!("Found payment {}: {} {:?}", id, amount, name);
+        println!("Found payment1 {}: {} {:?}", id, amount, name);
     }
-
     Ok(())
 }
