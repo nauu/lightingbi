@@ -1,10 +1,28 @@
+use async_trait::async_trait;
 use clickhouse_rs::types::Complex;
 use clickhouse_rs::{Block, Pool};
+use engine_crait::Engine;
 use query::QueryBuilder;
 use std::error::Error;
 
 pub struct ClickHouseEngine {
     pool: Pool,
+}
+
+#[async_trait]
+impl Engine<Block<Complex>> for ClickHouseEngine {
+    async fn ddl_str(&self, ddl: &str) -> Result<(), Box<dyn Error>> {
+        let mut client = self.pool.get_handle().await?;
+        client.execute(ddl).await?;
+        Ok(())
+    }
+
+    async fn query_str(&self, sql: &str) -> Result<(Block<Complex>), Box<dyn Error>> {
+        let mut client = self.pool.get_handle().await?;
+        let block = client.query(sql).fetch_all().await?;
+
+        Ok((block))
+    }
 }
 
 impl ClickHouseEngine {
@@ -13,23 +31,10 @@ impl ClickHouseEngine {
         ClickHouseEngine { pool }
     }
 
-    pub async fn ddl_str(&self, ddl: &str) -> Result<(), Box<dyn Error>> {
-        let mut client = self.pool.get_handle().await?;
-        client.execute(ddl).await?;
-        Ok(())
-    }
-
-    pub async fn insert_block(&self, table_name: &str, block: Block) -> Result<(), Box<dyn Error>> {
+    async fn insert_block(&self, table_name: &str, block: Block) -> Result<(), Box<dyn Error>> {
         let mut client = self.pool.get_handle().await?;
         client.insert(table_name, block).await?;
         Ok(())
-    }
-
-    pub async fn query_str(&self, ddl: &str) -> Result<(Block<Complex>), Box<dyn Error>> {
-        let mut client = self.pool.get_handle().await?;
-        let block = client.query("SELECT * FROM payment").fetch_all().await?;
-
-        Ok((block))
     }
 }
 
@@ -57,6 +62,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     qe.insert_block("payment1", block).await?;
 
     let block = qe.query_str("SELECT * FROM payment1").await?;
+    println!("count:{} ", block.rows().count());
     for row in block.rows() {
         let id: u32 = row.get("customer_id")?;
         let amount: u32 = row.get("amount")?;

@@ -4,4 +4,5 @@ members = [
     "basic",
     "query",
     "engine/clickhouse",
+    "engine/engine_crait",
 ]
