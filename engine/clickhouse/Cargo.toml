@@ -8,5 +8,5 @@ edition = "2018"
 clickhouse-rs = { git = "https://github.com/suharev7/clickhouse-rs", rev = "67c3bcb14751e05b83b3592fa9ee9f6ad2f408c6" }
 tokio = {version = "*", features = ["full"]}
 query = {path = "../../query",version = "0.1.0"}
-engine_crait = {path = "../engine_crait",version = "0.1.0"}
+engine_crait = {path = "../../engine_crait",version = "0.1.0"}
 async-trait = "0.1.48"

@@ -10,7 +10,9 @@ pub struct ClickHouseEngine {
 }
 
 #[async_trait]
-impl Engine<Block<Complex>> for ClickHouseEngine {
+impl Engine<QueryBuilder> for ClickHouseEngine {
+    type block = Block<Complex>;
+
     async fn ddl_str(&self, ddl: &str) -> Result<(), Box<dyn Error>> {
         let mut client = self.pool.get_handle().await?;
         client.execute(ddl).await?;
@@ -20,8 +22,11 @@ impl Engine<Block<Complex>> for ClickHouseEngine {
     async fn query_str(&self, sql: &str) -> Result<(Block<Complex>), Box<dyn Error>> {
         let mut client = self.pool.get_handle().await?;
         let block = client.query(sql).fetch_all().await?;
-
         Ok((block))
+    }
+
+    fn query_qb(&self, query_builder: QueryBuilder) -> Result<(), Box<dyn Error>> {
+        Ok(())
     }
 }
 
