@@ -33,6 +33,10 @@ impl QueryBuilder {
         self
     }
 
+    pub fn get_rows(self) -> Vec<Dimension> {
+        self.rows
+    }
+
     pub fn order(mut self, orders: &mut Vec<Order>) -> Self {
         self.orders.append(orders);
         self
@@ -45,9 +49,9 @@ impl QueryBuilder {
 
 #[derive(Debug, Clone)]
 pub struct Field {
-    field_name: String,
-    field_type: DataType,
-    display_name: String,
+    pub field_name: String,
+    pub field_type: DataType,
+    pub display_name: String,
 }
 
 impl Field {
@@ -66,8 +70,8 @@ impl Field {
 ///维度
 #[derive(Debug, Clone)]
 pub struct Dimension {
-    dimension_type: DimensionType,
-    field: Field,
+    pub dimension_type: DimensionType,
+    pub field: Field,
 }
 
 impl Dimension {

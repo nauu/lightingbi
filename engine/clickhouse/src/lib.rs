@@ -43,6 +43,20 @@ impl ClickHouseEngine {
     }
 }
 
+fn transfer(query_builder: QueryBuilder) {
+    let select_tmpl = " select {} ";
+    let from_tmpl = " from {} ";
+    let group_tmpl = " group by {} ";
+    let order_tmpl = " order by {} ";
+    let where_tmpl = " where {} ";
+
+    for d in query_builder.get_rows().iter() {
+        println!("{}", d.field.field_name);
+    }
+
+    // let select_tmpl = format!(select_tmpl,query_builder.row())
+}
+
 #[tokio::test]
 async fn main() -> Result<(), Box<dyn Error>> {
     let ddl = r"
