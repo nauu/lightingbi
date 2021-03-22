@@ -5,6 +5,7 @@ pub struct QueryBuilder {
     measures: Vec<Measure>,
     orders: Vec<Order>,
     filters: Vec<Measure>,
+    table: String,
 }
 
 impl QueryBuilder {
@@ -15,7 +16,13 @@ impl QueryBuilder {
             measures: vec![],
             orders: vec![],
             filters: vec![],
+            table: String::new(),
         }
+    }
+
+    pub fn table(mut self, table: String) -> Self {
+        self.table = table;
+        self
     }
 
     pub fn row(mut self, rows: &mut Vec<Dimension>) -> Self {
@@ -33,8 +40,12 @@ impl QueryBuilder {
         self
     }
 
-    pub fn get_rows(self) -> Vec<Dimension> {
-        self.rows
+    pub fn get_meas(&self) -> &Vec<Measure> {
+        &self.measures
+    }
+
+    pub fn get_rows(&self) -> &Vec<Dimension> {
+        &self.rows
     }
 
     pub fn order(mut self, orders: &mut Vec<Order>) -> Self {
@@ -55,7 +66,7 @@ pub struct Field {
 }
 
 impl Field {
-    fn new(field_name: String, field_type: DataType, mut display_name: String) -> Self {
+    pub fn new(field_name: String, field_type: DataType, mut display_name: String) -> Self {
         if display_name.is_empty() {
             display_name = field_name.to_owned();
         }
@@ -93,11 +104,11 @@ impl Dimension {
 ///度量
 #[derive(Debug, Clone)]
 pub struct Measure {
-    field: Field,
+    pub field: Field,
 }
 
 impl Measure {
-    fn new(field: Field) -> Measure {
+    pub fn new(field: Field) -> Measure {
         Measure { field }
     }
 }
@@ -109,7 +120,7 @@ pub struct Order {
 }
 
 impl Order {
-    fn new(field: Field) -> Self {
+    pub fn new(field: Field) -> Self {
         Order {
             field,
             order_type: OrderType::ASC,
@@ -192,6 +203,7 @@ mod tests {
         );
 
         let qb = QueryBuilder::new()
+            .table(String::from("tb1"))
             .row(&mut vec![Dimension::new_row(f1), Dimension::new_row(f3)])
             .col(&mut vec![Dimension::new_col(f2), Dimension::new_col(f4)])
             .meas(&mut vec![Measure::new(f5), Measure::new(f6.clone())])

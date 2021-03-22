@@ -2,7 +2,8 @@ use async_trait::async_trait;
 use clickhouse_rs::types::Complex;
 use clickhouse_rs::{Block, Pool};
 use engine_crait::Engine;
-use query::QueryBuilder;
+use query::{DataType, Dimension, Field, Measure, Order, OrderType, QueryBuilder};
+use std::collections::binary_heap::Iter;
 use std::error::Error;
 
 pub struct ClickHouseEngine {
@@ -42,51 +43,104 @@ impl ClickHouseEngine {
         Ok(())
     }
 }
-
-fn transfer(query_builder: QueryBuilder) {
-    let select_tmpl = " select {} ";
-    let from_tmpl = " from {} ";
-    let group_tmpl = " group by {} ";
-    let order_tmpl = " order by {} ";
-    let where_tmpl = " where {} ";
-
-    for d in query_builder.get_rows().iter() {
-        println!("{}", d.field.field_name);
+fn transfer_to_sql<T>(fields: Vec<T>, call: Box<Fn(&T) -> String>) -> String {
+    let mut d_fields = String::new();
+    let iter = fields.iter();
+    let len = &iter.len();
+    for (i, d) in iter.enumerate() {
+        let s = call(d);
+        d_fields.push_str(&s);
+        if i < len - 1 {
+            d_fields.push_str(",");
+        }
     }
 
-    // let select_tmpl = format!(select_tmpl,query_builder.row())
+    d_fields
 }
 
-#[tokio::test]
-async fn main() -> Result<(), Box<dyn Error>> {
-    let ddl = r"
+#[cfg(test)]
+mod tests {
+
+    use super::*;
+
+    #[tokio::test]
+    async fn test_qb() -> Result<(), Box<dyn Error>> {
+        let ddl = r"
         CREATE TABLE IF NOT EXISTS payment1 (
             customer_id  UInt32,
             amount       UInt32,
             account_name Nullable(FixedString(3))
         ) Engine=Memory";
 
-    let block = Block::new()
-        .column("customer_id", vec![1_u32, 3, 5, 7, 9])
-        .column("amount", vec![2_u32, 4, 6, 8, 10])
-        .column(
-            "account_name",
-            vec![Some("foo"), None, None, None, Some("bar")],
+        let block = Block::new()
+            .column("customer_id", vec![1_u32, 3, 5, 7, 9])
+            .column("amount", vec![2_u32, 4, 6, 8, 10])
+            .column(
+                "account_name",
+                vec![Some("foo"), None, None, None, Some("bar")],
+            );
+
+        let database_url = "tcp://10.37.129.9:9000/default?compression=lz4&ping_timeout=42ms";
+
+        let qe = ClickHouseEngine::new(database_url);
+        qe.ddl_str(ddl).await?;
+        qe.insert_block("payment1", block).await?;
+
+        let block = qe.query_str("SELECT * FROM payment1").await?;
+        println!("count:{} ", block.rows().count());
+        for row in block.rows() {
+            let id: u32 = row.get("customer_id")?;
+            let amount: u32 = row.get("amount")?;
+            let name: Option<&str> = row.get("account_name")?;
+            println!("Found payment1 {}: {} {:?}", id, amount, name);
+        }
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn test_to_sql() -> Result<(), Box<dyn Error>> {
+        let f1 = Field::new(String::from("field1"), DataType::Text, String::from("单位"));
+        let f2 = Field::new(String::from("field2"), DataType::Text, String::from("员工"));
+        let f3 = Field::new(String::from("field3"), DataType::Date, String::from("时间"));
+        let f4 = Field::new(
+            String::from("field4"),
+            DataType::Number,
+            String::from("人数"),
+        );
+        let f5 = Field::new(
+            String::from("field5"),
+            DataType::Number,
+            String::from("价格"),
+        );
+        let f6 = Field::new(
+            String::from("field6"),
+            DataType::Number,
+            String::from("数量"),
         );
 
-    let database_url = "tcp://10.37.129.9:9000/default?compression=lz4&ping_timeout=42ms";
+        let qb = QueryBuilder::new()
+            .row(&mut vec![Dimension::new_row(f1), Dimension::new_row(f3)])
+            .col(&mut vec![Dimension::new_col(f2), Dimension::new_col(f4)])
+            .meas(&mut vec![Measure::new(f5), Measure::new(f6.clone())])
+            .order(&mut vec![Order::new(f6)]);
 
-    let qe = ClickHouseEngine::new(database_url);
-    qe.ddl_str(ddl).await?;
-    qe.insert_block("payment1", block).await?;
+        //  transfer_to_sql1(qb);
+        // transfer_to_sql(Box::new(|qb| {}));
 
-    let block = qe.query_str("SELECT * FROM payment1").await?;
-    println!("count:{} ", block.rows().count());
-    for row in block.rows() {
-        let id: u32 = row.get("customer_id")?;
-        let amount: u32 = row.get("amount")?;
-        let name: Option<&str> = row.get("account_name")?;
-        println!("Found payment1 {}: {} {:?}", id, amount, name);
+        let select = transfer_to_sql(
+            qb.get_rows().to_vec(),
+            Box::new(|d| d.field.field_name.clone()),
+        );
+        let mut select = format!("select {}", select);
+        println!("select: {}", select);
+
+        let meas = transfer_to_sql(
+            qb.get_meas().to_vec(),
+            Box::new(|d| d.field.field_name.clone()),
+        );
+        let select = select + "," + &meas;
+        println!("select: {}", select);
+
+        Ok(())
     }
-    Ok(())
 }
