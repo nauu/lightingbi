@@ -42,20 +42,39 @@ impl ClickHouseEngine {
         client.insert(table_name, block).await?;
         Ok(())
     }
-}
-fn transfer_to_sql<T>(fields: Vec<T>, call: Box<Fn(&T) -> String>) -> String {
-    let mut d_fields = String::new();
-    let iter = fields.iter();
-    let len = &iter.len();
-    for (i, d) in iter.enumerate() {
-        let s = call(d);
-        d_fields.push_str(&s);
-        if i < len - 1 {
-            d_fields.push_str(",");
+
+    fn do_transfer_to_sql<T>(&self, fields: Vec<T>, call: Box<Fn(&T) -> String>) -> String {
+        let mut d_fields = String::new();
+        let iter = fields.iter();
+        let len = &iter.len();
+        for (i, d) in iter.enumerate() {
+            let s = call(d);
+            d_fields.push_str(&s);
+            if i < len - 1 {
+                d_fields.push_str(",");
+            }
         }
+
+        d_fields
     }
 
-    d_fields
+    fn transfer_to_sql(&self, qb: QueryBuilder) -> String {
+        let select = self.do_transfer_to_sql(
+            qb.get_rows().to_vec(),
+            Box::new(|d| d.field.field_name.clone()),
+        );
+        let select = format!("select {}", select);
+        // println!("select: {}", select);
+
+        let meas = self.do_transfer_to_sql(
+            qb.get_meas().to_vec(),
+            Box::new(|d| d.field.field_name.clone()),
+        );
+        let select = select + "," + &meas;
+        // println!("select: {}", select);
+
+        select
+    }
 }
 
 #[cfg(test)]
@@ -119,6 +138,7 @@ mod tests {
         );
 
         let qb = QueryBuilder::new()
+            .table(String::from("table1"))
             .row(&mut vec![Dimension::new_row(f1), Dimension::new_row(f3)])
             .col(&mut vec![Dimension::new_col(f2), Dimension::new_col(f4)])
             .meas(&mut vec![Measure::new(f5), Measure::new(f6.clone())])
@@ -127,19 +147,11 @@ mod tests {
         //  transfer_to_sql1(qb);
         // transfer_to_sql(Box::new(|qb| {}));
 
-        let select = transfer_to_sql(
-            qb.get_rows().to_vec(),
-            Box::new(|d| d.field.field_name.clone()),
-        );
-        let mut select = format!("select {}", select);
-        println!("select: {}", select);
+        let database_url = "tcp://10.37.129.9:9000/default?compression=lz4&ping_timeout=42ms";
 
-        let meas = transfer_to_sql(
-            qb.get_meas().to_vec(),
-            Box::new(|d| d.field.field_name.clone()),
-        );
-        let select = select + "," + &meas;
-        println!("select: {}", select);
+        let qe = ClickHouseEngine::new(database_url);
+        let sql = qe.transfer_to_sql(qb);
+        println!("sql: {}", sql);
 
         Ok(())
     }
