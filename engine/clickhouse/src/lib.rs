@@ -58,9 +58,11 @@ impl ClickHouseEngine {
         d_fields
     }
 
-    fn transfer_to_sql(&self, qb: QueryBuilder) -> String {
+    fn transfer_to_sql(&self, mut qb: QueryBuilder) -> String {
+        let rows_and_cols = qb.get_rows_and_cols();
+
         let select = self.do_transfer_to_sql(
-            qb.get_rows().to_vec(),
+            rows_and_cols.to_vec(),
             Box::new(|d| d.field.field_name.clone()),
         );
         let select = format!("select {}", select);
@@ -70,6 +72,7 @@ impl ClickHouseEngine {
             qb.get_meas().to_vec(),
             Box::new(|d| d.field.field_name.clone()),
         );
+
         let select = select + "," + &meas;
         // println!("select: {}", select);
 

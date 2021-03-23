@@ -48,6 +48,17 @@ impl QueryBuilder {
         &self.rows
     }
 
+    pub fn get_cols(&self) -> &Vec<Dimension> {
+        &self.columns
+    }
+
+    pub fn get_rows_and_cols(&mut self) -> Vec<Dimension> {
+        let mut res = Vec::new();
+        res.append(&mut self.rows);
+        res.append(&mut self.columns);
+        res
+    }
+
     pub fn order(mut self, orders: &mut Vec<Order>) -> Self {
         self.orders.append(orders);
         self
