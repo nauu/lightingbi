@@ -48,8 +48,7 @@ impl ClickHouseEngine {
 
         fields.iter().for_each(|x| {
             let s = call(x);
-            d_fields.push_str(&s);
-            d_fields.push_str(",");
+            d_fields.push_str(&(s + ","));
         });
         d_fields.pop();
         d_fields
