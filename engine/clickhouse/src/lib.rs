@@ -45,16 +45,13 @@ impl ClickHouseEngine {
 
     fn do_transfer_to_sql<T>(&self, fields: Vec<T>, call: Box<Fn(&T) -> String>) -> String {
         let mut d_fields = String::new();
-        let iter = fields.iter();
-        let len = &iter.len();
-        for (i, d) in iter.enumerate() {
-            let s = call(d);
-            d_fields.push_str(&s);
-            if i < len - 1 {
-                d_fields.push_str(",");
-            }
-        }
 
+        fields.iter().for_each(|x| {
+            let s = call(x);
+            d_fields.push_str(&s);
+            d_fields.push_str(",");
+        });
+        d_fields.pop();
         d_fields
     }
 
