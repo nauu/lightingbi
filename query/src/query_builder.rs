@@ -52,6 +52,10 @@ impl QueryBuilder {
         &self.columns
     }
 
+    pub fn get_table(&self) -> &String {
+        &self.table
+    }
+
     pub fn get_rows_and_cols(&mut self) -> Vec<Dimension> {
         let mut res = Vec::new();
         res.append(&mut self.rows);

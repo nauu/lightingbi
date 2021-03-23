@@ -11,7 +11,7 @@ pub struct ClickHouseEngine {
 }
 
 #[async_trait]
-impl Engine<QueryBuilder> for ClickHouseEngine {
+impl Engine for ClickHouseEngine {
     type block = Block<Complex>;
 
     async fn ddl_str(&self, ddl: &str) -> Result<(), Box<dyn Error>> {
@@ -24,10 +24,6 @@ impl Engine<QueryBuilder> for ClickHouseEngine {
         let mut client = self.pool.get_handle().await?;
         let block = client.query(sql).fetch_all().await?;
         Ok((block))
-    }
-
-    fn query_qb(&self, query_builder: QueryBuilder) -> Result<(), Box<dyn Error>> {
-        Ok(())
     }
 }
 
@@ -69,10 +65,20 @@ impl ClickHouseEngine {
             Box::new(|d| d.field.field_name.clone()),
         );
 
-        let select = select + "," + &meas;
+        let table = qb.get_table();
+        let table = format!(" from {}", table);
+        let sql = select + "," + &meas + table.as_str();
         // println!("select: {}", select);
+        sql
+    }
 
-        select
+    async fn query_qb(
+        &self,
+        query_builder: QueryBuilder,
+    ) -> Result<((Block<Complex>)), Box<dyn Error>> {
+        let sql = self.transfer_to_sql(query_builder);
+        let block = self.query_str(sql.as_str()).await?;
+        Ok(block)
     }
 }
 
@@ -80,6 +86,17 @@ impl ClickHouseEngine {
 mod tests {
 
     use super::*;
+
+    async fn print_row(block: Block<Complex>) -> Result<(), Box<dyn Error>> {
+        println!("count:{} ", block.rows().count());
+        for row in block.rows() {
+            let id: u32 = row.get("customer_id")?;
+            let amount: u32 = row.get("amount")?;
+            let name: Option<&str> = row.get("account_name")?;
+            println!("Found  {}: {} {:?}", id, amount, name);
+        }
+        Ok(())
+    }
 
     #[tokio::test]
     async fn test_qb() -> Result<(), Box<dyn Error>> {
@@ -100,18 +117,12 @@ mod tests {
 
         let database_url = "tcp://10.37.129.9:9000/default?compression=lz4&ping_timeout=42ms";
 
-        let qe = ClickHouseEngine::new(database_url);
-        qe.ddl_str(ddl).await?;
-        qe.insert_block("payment1", block).await?;
+        let ce = ClickHouseEngine::new(database_url);
+        ce.ddl_str(ddl).await?;
+        ce.insert_block("payment1", block).await?;
 
-        let block = qe.query_str("SELECT * FROM payment1").await?;
-        println!("count:{} ", block.rows().count());
-        for row in block.rows() {
-            let id: u32 = row.get("customer_id")?;
-            let amount: u32 = row.get("amount")?;
-            let name: Option<&str> = row.get("account_name")?;
-            println!("Found payment1 {}: {} {:?}", id, amount, name);
-        }
+        let block = ce.query_str("SELECT * FROM payment1").await?;
+        print_row(block).await?;
         Ok(())
     }
 
@@ -148,10 +159,41 @@ mod tests {
 
         let database_url = "tcp://10.37.129.9:9000/default?compression=lz4&ping_timeout=42ms";
 
-        let qe = ClickHouseEngine::new(database_url);
-        let sql = qe.transfer_to_sql(qb);
+        let ce = ClickHouseEngine::new(database_url);
+        let sql = ce.transfer_to_sql(qb);
         println!("sql: {}", sql);
 
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn test_query_qb() -> Result<(), Box<dyn Error>> {
+        let f1 = Field::new(
+            String::from("customer_id"),
+            DataType::Text,
+            String::from("单位ID"),
+        );
+        let f2 = Field::new(
+            String::from("account_name"),
+            DataType::Text,
+            String::from("账号名称"),
+        );
+        let f3 = Field::new(
+            String::from("amount"),
+            DataType::Number,
+            String::from("价格"),
+        );
+
+        let qb = QueryBuilder::new()
+            .table(String::from("payment1"))
+            .row(&mut vec![Dimension::new_row(f1)])
+            .col(&mut vec![Dimension::new_col(f2)])
+            .meas(&mut vec![Measure::new(f3)]);
+
+        let database_url = "tcp://10.37.129.9:9000/default?compression=lz4&ping_timeout=42ms";
+        let ce = ClickHouseEngine::new(database_url);
+        let block = ce.query_qb(qb).await?;
+        print_row(block).await?;
         Ok(())
     }
 }
