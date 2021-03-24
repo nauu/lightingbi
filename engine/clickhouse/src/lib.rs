@@ -12,7 +12,7 @@ pub struct ClickHouseEngine {
 
 #[async_trait]
 impl Engine for ClickHouseEngine {
-    type block = Block<Complex>;
+    type Block = Block<Complex>;
 
     async fn ddl_str(&self, ddl: &str) -> Result<(), Box<dyn Error>> {
         let mut client = self.pool.get_handle().await?;
@@ -20,7 +20,7 @@ impl Engine for ClickHouseEngine {
         Ok(())
     }
 
-    async fn query_str(&self, sql: &str) -> Result<(Block<Complex>), Box<dyn Error>> {
+    async fn query_str(&self, sql: &str) -> Result<Block<Complex>, Box<dyn Error>> {
         let mut client = self.pool.get_handle().await?;
         let block = client.query(sql).fetch_all().await?;
         Ok((block))
@@ -68,11 +68,11 @@ impl ClickHouseEngine {
             Box::new(|d| {
                 let f = d.field.field_name.clone();
                 match d.measure_type {
-                    MeasureFn::SUM => format!("sum({}) as {}", f, f),
-                    MeasureFn::MAX => format!("max({}) as {}", f, f),
-                    MeasureFn::MIN => format!("min({}) as {}", f, f),
-                    MeasureFn::AVG => format!("avg({}) as {}", f, f),
-                    MeasureFn::COUNT => format!("count({}) as {}", f, f),
+                    SUM => format!("sum({}) as {}", f, f),
+                    MAX => format!("max({}) as {}", f, f),
+                    MIN => format!("min({}) as {}", f, f),
+                    AVG => format!("avg({}) as {}", f, f),
+                    COUNT => format!("count({}) as {}", f, f),
                     _ => f,
                 }
             }),
@@ -89,7 +89,7 @@ impl ClickHouseEngine {
     async fn query_qb(
         &self,
         query_builder: QueryBuilder,
-    ) -> Result<((Block<Complex>)), Box<dyn Error>> {
+    ) -> Result<(Block<Complex>), Box<dyn Error>> {
         let sql = self.transfer_to_sql(query_builder);
         let block = self.query_str(sql.as_str()).await?;
         Ok(block)

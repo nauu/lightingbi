@@ -3,9 +3,9 @@ use std::error::Error;
 
 #[async_trait]
 pub trait Engine {
-    type block;
+    type Block;
 
     async fn ddl_str(&self, ddl: &str) -> Result<(), Box<dyn Error>>;
 
-    async fn query_str(&self, sql: &str) -> Result<(Self::block), Box<dyn Error>>;
+    async fn query_str(&self, sql: &str) -> Result<Self::Block, Box<dyn Error>>;
 }

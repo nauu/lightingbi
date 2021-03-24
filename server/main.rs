@@ -1,62 +1,12 @@
-use actix_files as fs;
-use actix_session::{CookieSession, Session};
-use actix_utils::mpsc;
-use actix_web::http::{header, Method, StatusCode};
-use actix_web::{
-    error, get, guard, middleware, web, App, Error, HttpRequest, HttpResponse, HttpServer, Result,
-};
+use actix_session::CookieSession;
+use actix_web::{guard, middleware, web, HttpResponse, HttpServer};
 use std::{env, io};
 
-/// favicon handler
-#[get("/favicon")]
-async fn favicon() -> Result<fs::NamedFile> {
-    Ok(fs::NamedFile::open("static/favicon.ico")?)
-}
+mod appconfig;
+mod handler;
 
-/// simple index handler
-#[get("/welcome")]
-async fn welcome(session: Session, req: HttpRequest) -> Result<HttpResponse> {
-    println!("{:?}", req);
-
-    // session
-    let mut counter = 1;
-    if let Some(count) = session.get::<i32>("counter")? {
-        println!("SESSION value: {}", count);
-        counter = count + 1;
-    }
-
-    // set counter to session
-    session.set("counter", counter)?;
-
-    // response
-    Ok(HttpResponse::build(StatusCode::OK)
-        .content_type("text/html; charset=utf-8")
-        .body(include_str!("static/welcome.html")))
-}
-
-/// 404 handler
-async fn p404() -> Result<fs::NamedFile> {
-    Ok(fs::NamedFile::open("static/404.html")?.set_status_code(StatusCode::NOT_FOUND))
-}
-
-/// response body
-async fn response_body(path: web::Path<String>) -> HttpResponse {
-    let text = format!("Hello {}!", *path);
-
-    let (tx, rx_body) = mpsc::channel();
-    let _ = tx.send(Ok::<_, Error>(web::Bytes::from(text)));
-
-    HttpResponse::Ok().streaming(rx_body)
-}
-
-/// handler with path parameters like `/user/{name}/`
-async fn with_param(req: HttpRequest, web::Path((name,)): web::Path<(String,)>) -> HttpResponse {
-    println!("{:?}", req);
-
-    HttpResponse::Ok()
-        .content_type("text/plain")
-        .body(format!("Hello {}!", name))
-}
+use crate::handler::default::p404;
+use actix_web::App;
 
 #[actix_web::main]
 async fn main() -> io::Result<()> {
@@ -69,43 +19,7 @@ async fn main() -> io::Result<()> {
             .wrap(CookieSession::signed(&[0; 32]).secure(false))
             // enable logger - always register actix-web Logger middleware last
             .wrap(middleware::Logger::default())
-            // register favicon
-            .service(favicon)
-            // register simple route, handle all methods
-            .service(welcome)
-            // with path parameters
-            .service(web::resource("/user/{name}").route(web::get().to(with_param)))
-            // async response body
-            .service(web::resource("/async-body/{name}").route(web::get().to(response_body)))
-            .service(
-                web::resource("/test").to(|req: HttpRequest| match *req.method() {
-                    Method::GET => HttpResponse::Ok(),
-                    Method::POST => HttpResponse::MethodNotAllowed(),
-                    _ => HttpResponse::NotFound(),
-                }),
-            )
-            .service(web::resource("/error").to(|| async {
-                error::InternalError::new(
-                    io::Error::new(io::ErrorKind::Other, "test"),
-                    StatusCode::INTERNAL_SERVER_ERROR,
-                )
-            }))
-            // static files
-            .service(fs::Files::new("/static", "static").show_files_listing())
-            .service(fs::Files::new("/assets", "static/dist/assets").show_files_listing())
-            .service(fs::Files::new("/resource", "static/dist/resource").show_files_listing())
-            .service(fs::Files::new(
-                "/_app.config.js",
-                "static/dist/_app.config.js",
-            ))
-            // redirect
-            .service(web::resource("/").route(web::get().to(|req: HttpRequest| {
-                println!("{:?}", req);
-                HttpResponse::Found()
-                    //.header(header::LOCATION, "static/welcome.html")
-                    .header(header::LOCATION, "static/dist/index.html")
-                    .finish()
-            })))
+            .configure(appconfig::config_app)
             // default
             .default_service(
                 // 404 for GET request
