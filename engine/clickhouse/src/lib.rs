@@ -2,7 +2,7 @@ use async_trait::async_trait;
 use clickhouse_rs::types::Complex;
 use clickhouse_rs::{Block, Pool};
 use engine_crait::Engine;
-use query::{DataType, Dimension, Field, Measure, Order, OrderType, QueryBuilder};
+use query::{DataType, Dimension, Field, Measure, MeasureFn, Order, OrderType, QueryBuilder};
 use std::collections::binary_heap::Iter;
 use std::error::Error;
 
@@ -57,18 +57,32 @@ impl ClickHouseEngine {
             rows_and_cols.to_vec(),
             Box::new(|d| d.field.field_name.clone()),
         );
+
+        let group = select.clone();
+
         let select = format!("select {}", select);
         // println!("select: {}", select);
 
         let meas = self.do_transfer_to_sql(
             qb.get_meas().to_vec(),
-            Box::new(|d| d.field.field_name.clone()),
+            Box::new(|d| {
+                let f = d.field.field_name.clone();
+                match d.measure_type {
+                    MeasureFn::SUM => format!("sum({}) as {}", f, f),
+                    MeasureFn::MAX => format!("max({}) as {}", f, f),
+                    MeasureFn::MIN => format!("min({}) as {}", f, f),
+                    MeasureFn::AVG => format!("avg({}) as {}", f, f),
+                    MeasureFn::COUNT => format!("count({}) as {}", f, f),
+                    _ => f,
+                }
+            }),
         );
 
         let table = qb.get_table();
         let table = format!(" from {}", table);
-        let sql = select + "," + &meas + table.as_str();
-        // println!("select: {}", select);
+        let group = format!(" group by {}", group);
+        let sql = select + "," + &meas + table.as_str() + " " + group.as_str();
+        println!("sql: {}", sql);
         sql
     }
 
@@ -91,7 +105,7 @@ mod tests {
         println!("count:{} ", block.rows().count());
         for row in block.rows() {
             let id: u32 = row.get("customer_id")?;
-            let amount: u32 = row.get("amount")?;
+            let amount: u64 = row.get("amount")?;
             let name: Option<&str> = row.get("account_name")?;
             println!("Found  {}: {} {:?}", id, amount, name);
         }
@@ -151,7 +165,10 @@ mod tests {
             .table(String::from("table1"))
             .row(&mut vec![Dimension::new_row(f1), Dimension::new_row(f3)])
             .col(&mut vec![Dimension::new_col(f2), Dimension::new_col(f4)])
-            .meas(&mut vec![Measure::new(f5), Measure::new(f6.clone())])
+            .meas(&mut vec![
+                Measure::new(f5, MeasureFn::MAX),
+                Measure::new(f6.clone(), MeasureFn::SUM),
+            ])
             .order(&mut vec![Order::new(f6)]);
 
         //  transfer_to_sql1(qb);
@@ -161,7 +178,7 @@ mod tests {
 
         let ce = ClickHouseEngine::new(database_url);
         let sql = ce.transfer_to_sql(qb);
-        println!("sql: {}", sql);
+        // println!("sql: {}", sql);
 
         Ok(())
     }
@@ -188,7 +205,7 @@ mod tests {
             .table(String::from("payment1"))
             .row(&mut vec![Dimension::new_row(f1)])
             .col(&mut vec![Dimension::new_col(f2)])
-            .meas(&mut vec![Measure::new(f3)]);
+            .meas(&mut vec![Measure::new(f3, MeasureFn::SUM)]);
 
         let database_url = "tcp://10.37.129.9:9000/default?compression=lz4&ping_timeout=42ms";
         let ce = ClickHouseEngine::new(database_url);

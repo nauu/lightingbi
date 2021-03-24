@@ -120,11 +120,15 @@ impl Dimension {
 #[derive(Debug, Clone)]
 pub struct Measure {
     pub field: Field,
+    pub measure_type: MeasureFn,
 }
 
 impl Measure {
-    pub fn new(field: Field) -> Measure {
-        Measure { field }
+    pub fn new(field: Field, measure_type: MeasureFn) -> Measure {
+        Measure {
+            field,
+            measure_type,
+        }
     }
 }
 
@@ -192,6 +196,15 @@ pub enum OrderType {
     DESC,
 }
 
+#[derive(Debug, Copy, Clone)]
+pub enum MeasureFn {
+    SUM,
+    MAX,
+    MIN,
+    AVG,
+    COUNT,
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -221,7 +234,10 @@ mod tests {
             .table(String::from("tb1"))
             .row(&mut vec![Dimension::new_row(f1), Dimension::new_row(f3)])
             .col(&mut vec![Dimension::new_col(f2), Dimension::new_col(f4)])
-            .meas(&mut vec![Measure::new(f5), Measure::new(f6.clone())])
+            .meas(&mut vec![
+                Measure::new(f5, MeasureFn::SUM),
+                Measure::new(f6.clone(), MeasureFn::MAX),
+            ])
             .order(&mut vec![Order::new(f6)]);
 
         println!("{:?}", qb);
