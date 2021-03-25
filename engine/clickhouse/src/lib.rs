@@ -2,8 +2,7 @@ use async_trait::async_trait;
 use clickhouse_rs::types::Complex;
 use clickhouse_rs::{Block, Pool};
 use engine_crait::Engine;
-use query::{DataType, Dimension, Field, Measure, MeasureFn, Order, OrderType, QueryBuilder};
-use std::collections::binary_heap::Iter;
+use query::{MeasureFn, QueryBuilder};
 use std::error::Error;
 
 pub struct ClickHouseEngine {
@@ -23,7 +22,7 @@ impl Engine for ClickHouseEngine {
     async fn query_str(&self, sql: &str) -> Result<Block<Complex>, Box<dyn Error>> {
         let mut client = self.pool.get_handle().await?;
         let block = client.query(sql).fetch_all().await?;
-        Ok((block))
+        Ok(block)
     }
 }
 
@@ -39,7 +38,7 @@ impl ClickHouseEngine {
         Ok(())
     }
 
-    fn do_transfer_to_sql<T>(&self, fields: Vec<T>, call: Box<Fn(&T) -> String>) -> String {
+    fn do_transfer_to_sql<T>(&self, fields: Vec<T>, call: Box<dyn Fn(&T) -> String>) -> String {
         let mut d_fields = String::new();
 
         fields.iter().for_each(|x| {
@@ -68,12 +67,11 @@ impl ClickHouseEngine {
             Box::new(|d| {
                 let f = d.field.field_name.clone();
                 match d.measure_type {
-                    SUM => format!("sum({}) as {}", f, f),
-                    MAX => format!("max({}) as {}", f, f),
-                    MIN => format!("min({}) as {}", f, f),
-                    AVG => format!("avg({}) as {}", f, f),
-                    COUNT => format!("count({}) as {}", f, f),
-                    _ => f,
+                    MeasureFn::SUM => format!("sum({}) as {}", f, f),
+                    MeasureFn::MAX => format!("max({}) as {}", f, f),
+                    MeasureFn::MIN => format!("min({}) as {}", f, f),
+                    MeasureFn::AVG => format!("avg({}) as {}", f, f),
+                    MeasureFn::COUNT => format!("count({}) as {}", f, f),
                 }
             }),
         );
@@ -89,7 +87,7 @@ impl ClickHouseEngine {
     async fn query_qb(
         &self,
         query_builder: QueryBuilder,
-    ) -> Result<(Block<Complex>), Box<dyn Error>> {
+    ) -> Result<Block<Complex>, Box<dyn Error>> {
         let sql = self.transfer_to_sql(query_builder);
         let block = self.query_str(sql.as_str()).await?;
         Ok(block)
