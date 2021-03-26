@@ -17,3 +17,5 @@ actix-files = "0.3"
 actix-session = "0.4"
 actix-utils = "2"
 env_logger = "0.8"
+serde = { version = "1.0", features = ["derive"] }
+json = "0.12"

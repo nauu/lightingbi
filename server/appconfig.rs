@@ -1,4 +1,5 @@
-use crate::handler::default::{favicon, response_body, welcome, with_param};
+use crate::handler::default::*;
+use crate::handler::query::*;
 use actix_files as fs;
 use actix_web::http::{header, Method, StatusCode};
 use actix_web::{error, web, HttpRequest, HttpResponse};
@@ -12,6 +13,8 @@ pub fn config_app(cfg: &mut web::ServiceConfig) {
         .service(web::resource("/user/{name}").route(web::get().to(with_param)))
         // async response body
         .service(web::resource("/async-body/{name}").route(web::get().to(response_body)))
+        .service(query)
+        .service(query_str)
         .service(
             web::resource("/test").to(|req: HttpRequest| match *req.method() {
                 Method::GET => HttpResponse::Ok(),
