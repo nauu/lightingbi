@@ -84,7 +84,7 @@ impl ClickHouseEngine {
         sql
     }
 
-    async fn query_qb(
+    pub async fn query_qb(
         &self,
         query_builder: QueryBuilder,
     ) -> Result<Block<Complex>, Box<dyn Error>> {
