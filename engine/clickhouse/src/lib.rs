@@ -27,12 +27,12 @@ impl Engine for ClickHouseEngine {
 }
 
 impl ClickHouseEngine {
-    fn new(database_url: &str) -> Self {
+    pub fn new(database_url: &str) -> Self {
         let pool = Pool::new(database_url);
         ClickHouseEngine { pool }
     }
 
-    async fn insert_block(&self, table_name: &str, block: Block) -> Result<(), Box<dyn Error>> {
+    pub async fn insert_block(&self, table_name: &str, block: Block) -> Result<(), Box<dyn Error>> {
         let mut client = self.pool.get_handle().await?;
         client.insert(table_name, block).await?;
         Ok(())
