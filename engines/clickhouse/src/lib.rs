@@ -98,6 +98,7 @@ impl ClickHouseEngine {
 mod tests {
 
     use super::*;
+    use query::{DataType, Dimension, Field, Measure, Order};
 
     async fn print_row(block: Block<Complex>) -> Result<(), Box<dyn Error>> {
         println!("count:{} ", block.rows().count());

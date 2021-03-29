@@ -4,7 +4,6 @@ use std::{env, io};
 
 mod appconfig;
 mod handler;
-
 use crate::handler::default::p404;
 use actix_web::App;
 
