@@ -7,7 +7,7 @@ use actix_web::{get, web, Error, HttpRequest, HttpResponse, Result};
 /// favicon handler
 #[get("/favicon")]
 pub async fn favicon() -> Result<fs::NamedFile> {
-    Ok(fs::NamedFile::open("static/favicon.ico")?)
+    Ok(fs::NamedFile::open("../../static/favicon.ico")?)
 }
 
 /// simple index handler
@@ -28,12 +28,12 @@ pub async fn welcome(session: Session, req: HttpRequest) -> Result<HttpResponse>
     // response
     Ok(HttpResponse::build(StatusCode::OK)
         .content_type("text/html; charset=utf-8")
-        .body(include_str!("../static/welcome.html")))
+        .body(include_str!("../../static/welcome.html")))
 }
 
 /// 404 handler
 pub async fn p404() -> Result<fs::NamedFile> {
-    Ok(fs::NamedFile::open("static/404.html")?.set_status_code(StatusCode::NOT_FOUND))
+    Ok(fs::NamedFile::open("../../static/404.html")?.set_status_code(StatusCode::NOT_FOUND))
 }
 
 /// response body

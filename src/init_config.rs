@@ -27,21 +27,17 @@ pub fn config_app(cfg: &mut web::ServiceConfig) {
                 io::Error::new(io::ErrorKind::Other, "test"),
                 StatusCode::INTERNAL_SERVER_ERROR,
             )
-        }))
-        // static files
-        .service(fs::Files::new("/static", "static").show_files_listing())
-        .service(fs::Files::new("/assets", "static/dist/assets").show_files_listing())
-        .service(fs::Files::new("/resource", "static/dist/resource").show_files_listing())
-        .service(fs::Files::new(
-            "/_app.config.js",
-            "static/dist/_app.config.js",
-        ))
+        }));
+}
+
+pub fn config_static(cfg: &mut web::ServiceConfig) {
+    // static files
+    cfg.service(fs::Files::new("/static", "../../static").show_files_listing())
         // redirect
         .service(web::resource("/").route(web::get().to(|req: HttpRequest| {
             println!("{:?}", req);
             HttpResponse::Found()
-                //.header(header::LOCATION, "static/welcome.html")
-                .header(header::LOCATION, "static/dist/index.html")
+                .header(header::LOCATION, "static/welcome.html")
                 .finish()
         })));
 }

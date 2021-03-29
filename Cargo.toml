@@ -1,6 +1,31 @@
+[package]
+name = "lightingbi"
+version = "0.1.0"
+authors = ["zhukai <zhukai@apache.org>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+actix-web = "3"
+actix-files = "0.3"
+actix-session = "0.4"
+actix-utils = "2"
+env_logger = "0.8"
+serde = { version = "1.0", features = ["derive"] }
+json = "0.12"
+log = "0.4.8"
+sqlx = { version = "0.5", features = [ "mysql","runtime-tokio-rustls" ] }
+anyhow = "1.0.28"
+dotenv = "0.15.0"
+listenfd = "0.3.3"
+
+[[bin]]
+name="lightingbi"
+path="src/bin/main.rs"
+
 [workspace]
 members = [
-    "server",
     "query",
     "engines/clickhouse",
     "engine_craits",
