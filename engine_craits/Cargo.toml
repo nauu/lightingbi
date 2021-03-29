@@ -1,5 +1,5 @@
 [package]
-name = "engine_crait"
+name = "engine_craits"
 version = "0.1.0"
 authors = ["zhukai <zhukai@apache.org>"]
 edition = "2018"

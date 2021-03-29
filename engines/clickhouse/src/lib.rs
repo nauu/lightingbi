@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 use clickhouse_rs::types::Complex;
 use clickhouse_rs::{Block, Pool};
-use engine_crait::Engine;
+use engine_craits::Engine;
 use query::{MeasureFn, QueryBuilder};
 use std::error::Error;
 

@@ -1,8 +1,7 @@
 [workspace]
 members = [
     "server",
-    "basic",
     "query",
-    "engine/clickhouse",
-    "engine_crait",
+    "engines/clickhouse",
+    "engine_craits",
 ]
