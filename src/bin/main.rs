@@ -50,7 +50,15 @@ async fn main() -> io::Result<()> {
         None => {
             let host = env::var("HOST").expect("HOST is not set in .env file");
             let port = env::var("PORT").expect("PORT is not set in .env file");
-            server.bind(format!("{}:{}", host, port))?
+
+            if env::var("WORKERS_NUM").is_ok() {
+                println!("set works");
+                server
+                    .workers(env::var("WORKERS_NUM").unwrap().parse().unwrap())
+                    .bind(format!("{}:{}", host, port))?
+            } else {
+                server.bind(format!("{}:{}", host, port))?
+            }
         }
     };
 
