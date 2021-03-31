@@ -30,4 +30,5 @@ members = [
     "engines/clickhouse",
     "engine_craits",
     "components/user",
+    "components/data_assemble",
 ]
