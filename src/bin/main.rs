@@ -10,11 +10,15 @@ use lightingbi::init_config;
 use listenfd::ListenFd;
 use sqlx::MySqlPool;
 use std::{env, io};
+use user::models::human;
 
 #[actix_web::main]
 async fn main() -> io::Result<()> {
     dotenv::dotenv().ok();
     env_logger::init();
+
+    // Create Juniper schema
+    let schema = std::sync::Arc::new(human::create_schema());
 
     // this will enable us to keep application running during recompile: systemfd --no-pid -s http::5000 -- cargo watch -x run
     let mut listenfd = ListenFd::from_env();
@@ -24,6 +28,7 @@ async fn main() -> io::Result<()> {
 
     let mut server = HttpServer::new(move || {
         App::new()
+            .data(schema.clone())
             //  .data(db_pool.clone()) // pass database pool to application so we can access it inside handlers
             //cookie session middleware
             .wrap(CookieSession::signed(&[0; 32]).secure(false))

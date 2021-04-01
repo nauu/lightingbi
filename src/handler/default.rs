@@ -46,7 +46,7 @@ pub async fn response_body(path: web::Path<String>) -> HttpResponse {
     HttpResponse::Ok().streaming(rx_body)
 }
 
-/// handler with path parameters like `/user/{name}/`
+/// handler with path parameters like `/models/{name}/`
 pub async fn with_param(
     req: HttpRequest,
     web::Path((name,)): web::Path<(String,)>,

@@ -12,3 +12,4 @@ tokio = { version = "*", features = ["full"]}
 serde = { version = "1.0", features = ["derive"] }
 anyhow = "1.0.28"
 dotenv = "0.15.0"
+juniper = "0.14.2"
