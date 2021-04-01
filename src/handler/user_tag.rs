@@ -1,5 +1,5 @@
 //Estimated number of people
-fn query_num() {}
+pub fn query_num() {}
 
 //Crowd portrait
 fn query_portrait() {}
