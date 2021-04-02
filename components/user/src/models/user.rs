@@ -1,15 +1,16 @@
 use anyhow::Result;
-use dotenv::dotenv;
 use serde::{Deserialize, Serialize};
-use sqlx::FromRow;
 use sqlx::MySqlPool;
+use sqlx::{Done, FromRow};
 
-#[derive(Debug, Deserialize, Serialize, FromRow)]
+#[derive(Debug, Deserialize, Serialize, Clone, FromRow)]
 pub struct User {
     id: u64,
     name: Option<String>,
     age: Option<i32>,
 }
+
+::async_graphql::scalar!(User);
 
 impl User {
     pub fn new(name: Option<String>, age: Option<i32>) -> User {
@@ -89,7 +90,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_crud() -> Result<()> {
-        dotenv().ok();
+        dotenv::dotenv().ok();
         let database_url = env::var("DATABASE_URL").expect("DATABASE_URL is not set in .env file");
         let db_pool = MySqlPool::connect(&database_url).await?;
 
@@ -120,7 +121,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_create() -> Result<()> {
-        dotenv().ok();
+        dotenv::dotenv().ok();
         let database_url = env::var("DATABASE_URL").expect("DATABASE_URL is not set in .env file");
         let db_pool = MySqlPool::connect(&database_url).await?;
 
@@ -132,7 +133,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_find_all() -> Result<()> {
-        dotenv().ok();
+        dotenv::dotenv().ok();
         let database_url = env::var("DATABASE_URL").expect("DATABASE_URL is not set in .env file");
         let db_pool = MySqlPool::connect(&database_url).await?;
 
@@ -145,7 +146,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_update() -> Result<()> {
-        dotenv().ok();
+        dotenv::dotenv().ok();
         let database_url = env::var("DATABASE_URL").expect("DATABASE_URL is not set in .env file");
         let db_pool = MySqlPool::connect(&database_url).await?;
 
@@ -160,7 +161,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_delete() -> Result<()> {
-        dotenv().ok();
+        dotenv::dotenv().ok();
         let database_url = env::var("DATABASE_URL").expect("DATABASE_URL is not set in .env file");
         let db_pool = MySqlPool::connect(&database_url).await?;
 

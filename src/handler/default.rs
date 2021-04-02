@@ -1,8 +1,7 @@
 use actix_files as fs;
 use actix_session::Session;
-use actix_utils::mpsc;
 use actix_web::http::StatusCode;
-use actix_web::{get, web, Error, HttpRequest, HttpResponse, Result};
+use actix_web::{get, web, HttpRequest, HttpResponse, Result};
 
 /// favicon handler
 #[get("/favicon")]
@@ -37,14 +36,14 @@ pub async fn p404() -> Result<fs::NamedFile> {
 }
 
 /// response body
-pub async fn response_body(path: web::Path<String>) -> HttpResponse {
-    let text = format!("Hello {}!", *path);
-
-    let (tx, rx_body) = mpsc::channel();
-    let _ = tx.send(Ok::<_, Error>(web::Bytes::from(text)));
-
-    HttpResponse::Ok().streaming(rx_body)
-}
+// pub async fn response_body(path: web::Path<String>) -> HttpResponse {
+//     let text = format!("Hello {}!", *path);
+//
+//     let (tx, rx_body) = mpsc::channel();
+//     let _ = tx.send(Ok::<_, Error>(web::Bytes::from(text)));
+//
+//     HttpResponse::Ok().streaming(rx_body)
+// }
 
 /// handler with path parameters like `/models/{name}/`
 pub async fn with_param(

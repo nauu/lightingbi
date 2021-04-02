@@ -7,9 +7,16 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-sqlx = { version = "0.5", features = [ "mysql","runtime-tokio-rustls" ] }
+sqlx = { version = "0.4.2", features = [ "mysql","runtime-tokio-rustls" ] }
 tokio = { version = "*", features = ["full"]}
 serde = { version = "1.0", features = ["derive"] }
 anyhow = "1.0.28"
 dotenv = "0.15.0"
-juniper = "0.14.2"
+##juniper = "0.14.2"
+#juniper = { git = "https://github.com/graphql-rust/juniper", branch = "async-await", features = ["async"] }
+#futures = { version = "0.3.1", features = ["compat"] }
+
+async-graphql = "2.7.3"
+async-graphql-actix-web = "2.7.3"
+
+graphql = {path = "../../graphql", version = "0.1.0"}

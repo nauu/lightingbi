@@ -5,31 +5,30 @@ use actix_session::CookieSession;
 use actix_web::App;
 use actix_web::{guard, middleware, web, HttpResponse, HttpServer};
 use dotenv;
+use lightingbi::graphql::create_schema;
 use lightingbi::handler::default::p404;
 use lightingbi::init_config;
 use listenfd::ListenFd;
 use sqlx::MySqlPool;
-use std::{env, io};
-use user::models::human;
+use std::env;
 
 #[actix_web::main]
-async fn main() -> io::Result<()> {
+async fn main() -> anyhow::Result<()> {
     dotenv::dotenv().ok();
     env_logger::init();
-
-    // Create Juniper schema
-    let schema = std::sync::Arc::new(human::create_schema());
 
     // this will enable us to keep application running during recompile: systemfd --no-pid -s http::5000 -- cargo watch -x run
     let mut listenfd = ListenFd::from_env();
 
-    // let database_url = env::var("DATABASE_URL").expect("DATABASE_URL is not set in .env file");
-    //let db_pool = MySqlPool::new(&database_url).await?;
+    let database_url = env::var("DATABASE_URL").expect("DATABASE_URL is not set in .env file");
+    let db_pool = MySqlPool::connect(&database_url).await?;
+
+    let schema = create_schema(&db_pool);
 
     let mut server = HttpServer::new(move || {
         App::new()
             .data(schema.clone())
-            //  .data(db_pool.clone()) // pass database pool to application so we can access it inside handlers
+            .data(db_pool.clone()) // pass database pool to application so we can access it inside handlers
             //cookie session middleware
             .wrap(CookieSession::signed(&[0; 32]).secure(false))
             // enable logger - always register actix-web Logger middleware last

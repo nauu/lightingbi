@@ -13,7 +13,6 @@ pub fn config_app(cfg: &mut web::ServiceConfig) {
         // with path parameters
         .service(web::resource("/models/{name}").route(web::get().to(with_param)))
         // async response body
-        .service(web::resource("/async-body/{name}").route(web::get().to(response_body)))
         .service(query)
         .service(query_str)
         .service(
@@ -30,7 +29,7 @@ pub fn config_app(cfg: &mut web::ServiceConfig) {
             )
         }))
         .route("/graphql", web::post().to(graphql))
-        .route("/graphiql", web::get().to(graphql_playground));
+        .route("/playground", web::get().to(graphql_playground));
 }
 
 pub fn config_static(cfg: &mut web::ServiceConfig) {
