@@ -1,4 +1,4 @@
-use crate::graphql::RootSchema;
+use crate::RootSchema;
 use actix_web::{guard, web, App, HttpResponse, HttpServer, Result};
 use async_graphql::http::{playground_source, GraphQLPlaygroundConfig};
 use async_graphql::{EmptyMutation, EmptySubscription, Schema};

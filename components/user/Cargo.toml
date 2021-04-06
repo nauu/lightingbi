@@ -18,5 +18,3 @@ dotenv = "0.15.0"
 
 async-graphql = "2.7.3"
 async-graphql-actix-web = "2.7.3"
-
-graphql = {path = "../../graphql", version = "0.1.0"}

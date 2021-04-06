@@ -1,6 +1,6 @@
 use async_graphql::{Context, FieldResult, Object};
 use sqlx::MySqlPool;
-use user::models::user::User;
+use user::User;
 
 pub struct QueryRoot;
 

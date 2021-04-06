@@ -20,13 +20,12 @@ sqlx = { version = "0.4.2", features = [ "mysql","runtime-tokio-rustls" ] }
 anyhow = "1.0.28"
 dotenv = "0.15.0"
 listenfd = "0.3.3"
-#juniper = "0.14.2"
-#juniper = { git = "https://github.com/graphql-rust/juniper", branch = "async-await", features = ["async"] }
 async-graphql = "2.7.3"
 async-graphql-actix-web = "2.7.3"
 
 
 user = {path = "components/user",version = "0.1.0"}
+graphql = {path = "components/graphql",version = "0.1.0"}
 
 
 [[bin]]
@@ -36,9 +35,10 @@ path="src/bin/main.rs"
 [workspace]
 members = [
     "query",
-    "graphql",
+    "core",
     "engines/clickhouse",
     "engine_craits",
     "components/user",
     "components/data_assemble",
+    "components/graphql",
 ]

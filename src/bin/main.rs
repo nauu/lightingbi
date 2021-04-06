@@ -5,7 +5,6 @@ use actix_session::CookieSession;
 use actix_web::App;
 use actix_web::{guard, middleware, web, HttpResponse, HttpServer};
 use dotenv;
-use lightingbi::graphql::create_schema;
 use lightingbi::handler::default::p404;
 use lightingbi::init_config;
 use listenfd::ListenFd;
@@ -23,7 +22,7 @@ async fn main() -> anyhow::Result<()> {
     let database_url = env::var("DATABASE_URL").expect("DATABASE_URL is not set in .env file");
     let db_pool = MySqlPool::connect(&database_url).await?;
 
-    let schema = create_schema(&db_pool);
+    let schema = graphql::create_schema(&db_pool);
 
     let mut server = HttpServer::new(move || {
         App::new()
@@ -36,6 +35,7 @@ async fn main() -> anyhow::Result<()> {
             // default
             .configure(init_config::config_app) // init routes app
             .configure(init_config::config_static) // init routes static
+            .configure(graphql::route) // init routes static
             .default_service(
                 // 404 for GET request
                 web::resource("")

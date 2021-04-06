@@ -1,5 +1,4 @@
 use crate::handler::default::*;
-use crate::handler::graphql::*;
 use crate::handler::query::*;
 use actix_files as fs;
 use actix_web::http::{header, Method, StatusCode};
@@ -27,9 +26,7 @@ pub fn config_app(cfg: &mut web::ServiceConfig) {
                 io::Error::new(io::ErrorKind::Other, "test"),
                 StatusCode::INTERNAL_SERVER_ERROR,
             )
-        }))
-        .route("/graphql", web::post().to(graphql))
-        .route("/playground", web::get().to(graphql_playground));
+        }));
 }
 
 pub fn config_static(cfg: &mut web::ServiceConfig) {
