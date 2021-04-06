@@ -30,3 +30,12 @@ cargo run --bin lightingbi
   users 
 }
 ```
+
+# Build
+
+```shell
+cargo install cross
+
+#x86_64 linux
+cross build --target=x86_64-unknown-linux-musl --release --features vendored
+```

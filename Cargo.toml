@@ -6,6 +6,11 @@ edition = "2018"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[features]
+# Force openssl-sys to staticly link in the openssl library. Necessary when
+# cross compiling to x86_64-unknown-linux-musl.
+vendored = ["openssl-sys/vendored"]
+
 [dependencies]
 actix-web = "3"
 actix-files = "0.3"
@@ -16,7 +21,8 @@ serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 json = "0.12"
 log = "0.4.8"
-sqlx = { version = "0.4.2", features = [ "mysql","runtime-tokio-rustls" ] }
+#sqlx = { version = "0.4.2", features = [ "mysql","runtime-tokio-rustls" ] }
+sqlx = { version = "0.4.2", features = [ "mysql","runtime-tokio-native-tls" ] }
 anyhow = "1.0.28"
 dotenv = "0.15.0"
 listenfd = "0.3.3"
@@ -27,6 +33,10 @@ async-graphql-actix-web = "2.7.3"
 user = {path = "components/user",version = "0.1.0"}
 graphql = {path = "components/graphql",version = "0.1.0"}
 
+
+# Add openssl-sys as a direct dependency so it can be cross compiled to
+# x86_64-unknown-linux-musl using the "vendored" feature below
+openssl-sys = "*"
 
 [[bin]]
 name="lightingbi"
@@ -41,4 +51,49 @@ members = [
     "components/user",
     "components/data_assemble",
     "components/graphql",
+    "components/connectors/csv",
 ]
+
+
+[profile.dev]
+opt-level = 0
+debug = 1 # required for line numbers in tests, see tikv #5049
+codegen-units = 4
+lto = false
+incremental = true
+panic = 'unwind'
+debug-assertions = true
+overflow-checks = false
+rpath = false
+
+[profile.release]
+opt-level = 3
+debug = false
+codegen-units = 1
+lto = "thin"
+incremental = false
+panic = 'unwind'
+debug-assertions = false
+overflow-checks = false
+rpath = false
+
+[profile.test]
+opt-level = 0
+debug = 1 # enable line numbers by default for easy test debugging
+codegen-units = 16
+lto = false
+incremental = true
+debug-assertions = true
+overflow-checks = true
+rpath = false
+
+# The benchmark profile is identical to release, except that lto = false
+[profile.bench]
+opt-level = 3
+debug = false
+codegen-units = 1
+lto = 'thin'
+incremental = false
+debug-assertions = false
+overflow-checks = false
+rpath = false

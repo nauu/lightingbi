@@ -123,8 +123,8 @@ mod tests {
 
     #[tokio::test]
     async fn test_mpsc1() {
-        let (tx, mut rx) = mpsc::channel(32);
-        let tx2 = tx.clone();
+        let (mut tx, mut rx) = mpsc::channel(32);
+        let mut tx2 = tx.clone();
 
         tokio::spawn(async move {
             tx.send("sending from first handle").await;
@@ -141,8 +141,8 @@ mod tests {
 
     #[tokio::test]
     async fn test_mpsc2() {
-        let (s, mut r) = mpsc::channel(32);
-        let s2 = s.clone();
+        let (mut s, mut r) = mpsc::channel(32);
+        let mut s2 = s.clone();
 
         let handler1 = tokio::spawn(async move {
             let cmd = Command::GET {
@@ -180,8 +180,8 @@ mod tests {
 
     #[tokio::test]
     async fn test_mpsc3() {
-        let (s, mut r) = mpsc::channel(32);
-        let s2 = s.clone();
+        let (mut s, mut r) = mpsc::channel(32);
+        let mut s2 = s.clone();
 
         let handler1 = tokio::spawn(async move {
             let (resp_sender, resp_recver) = oneshot::channel();
