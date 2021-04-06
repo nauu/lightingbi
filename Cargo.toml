@@ -9,7 +9,7 @@ edition = "2018"
 [features]
 # Force openssl-sys to staticly link in the openssl library. Necessary when
 # cross compiling to x86_64-unknown-linux-musl.
-vendored = ["openssl-sys/vendored"]
+#vendored = ["openssl-sys/vendored"]
 
 [dependencies]
 actix-web = "3"
@@ -36,7 +36,7 @@ graphql = {path = "components/graphql",version = "0.1.0"}
 
 # Add openssl-sys as a direct dependency so it can be cross compiled to
 # x86_64-unknown-linux-musl using the "vendored" feature below
-openssl-sys = "*"
+#openssl-sys = "*"
 
 [[bin]]
 name="lightingbi"
@@ -57,7 +57,7 @@ members = [
 
 [profile.dev]
 opt-level = 0
-debug = 1 # required for line numbers in tests, see tikv #5049
+debug = 1 # required for line numbers in tests
 codegen-units = 4
 lto = false
 incremental = true
