@@ -51,6 +51,7 @@ members = [
     "components/user",
     "components/data_assemble",
     "components/graphql",
+    "components/connectors/connector_craits",
     "components/connectors/csv",
     "components/connectors/excel",
 ]

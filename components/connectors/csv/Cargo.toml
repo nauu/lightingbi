@@ -8,3 +8,6 @@ edition = "2018"
 
 [dependencies]
 csv = "1.1"
+
+
+connector_craits = {path = "../connector_craits", version = "0.1.0"}

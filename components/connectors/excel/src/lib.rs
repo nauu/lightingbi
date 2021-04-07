@@ -1,5 +1,6 @@
 use calamine::{open_workbook_auto, DataType, Range, Reader};
 use chrono::{Duration, NaiveDate};
+use connector_craits::FileConnector;
 use std::env;
 use std::error::Error;
 use std::fs::File;
@@ -8,12 +9,10 @@ use std::path::PathBuf;
 
 struct Excel_Connector {}
 
-impl Excel_Connector {
-    pub fn new() -> Self {
-        Self {}
-    }
+impl FileConnector for Excel_Connector {
+    type Result = Result<(Range<DataType>), Box<dyn Error>>;
 
-    pub fn load_file(&self, file_path: &str) -> Result<(Range<DataType>), Box<dyn Error>> {
+    fn load_file(&self, file_path: &str) -> Self::Result {
         let sce = PathBuf::from(file_path);
         match sce.extension().and_then(|s| s.to_str()) {
             Some("xlsx") | Some("xlsm") | Some("xlsb") | Some("xls") => (),
@@ -24,6 +23,12 @@ impl Excel_Connector {
         let range = xl.worksheet_range_at(0).unwrap().unwrap();
 
         Ok(range)
+    }
+}
+
+impl Excel_Connector {
+    pub fn new() -> Self {
+        Self {}
     }
 
     pub fn from_days_since_1900(&self, days_since_1900: i64) -> NaiveDate {
@@ -39,10 +44,14 @@ mod tests {
 
     #[test]
     fn test_load_file() {
-        let file =
-            "/Users/nauu/CLionProjects/lightingbi/components/connectors/excel/resource/test.xlsx";
+        let mut d = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        d.push("tests/test.xlsx");
+
+        let file_path = d.to_str().unwrap();
+        println!("file_path:{} ", file_path);
+
         let excel_connector = Excel_Connector::new();
-        let range = excel_connector.load_file(file).unwrap();
+        let range = excel_connector.load_file(file_path).unwrap();
 
         for r in range.rows() {
             for (i, c) in r.iter().enumerate() {
