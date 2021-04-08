@@ -37,7 +37,7 @@ impl Excel_Connector {
     }
 }
 
-#[cfg(test)]
+#[cfg(test, feature = "std")]
 mod tests {
 
     use super::*;

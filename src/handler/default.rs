@@ -12,7 +12,7 @@ pub async fn favicon() -> Result<fs::NamedFile> {
 /// simple index handler
 #[get("/welcome")]
 pub async fn welcome(session: Session, req: HttpRequest) -> Result<HttpResponse> {
-    println!("{:?}", req);
+    // println!("{:?}", req);
 
     // session
     let mut counter = 1;
@@ -50,7 +50,7 @@ pub async fn with_param(
     req: HttpRequest,
     web::Path((name,)): web::Path<(String,)>,
 ) -> HttpResponse {
-    println!("{:?}", req);
+    // println!("{:?}", req);
 
     HttpResponse::Ok()
         .content_type("text/plain")

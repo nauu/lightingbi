@@ -1,0 +1,54 @@
+{
+  "db": "MySQL",
+  "1f24e226774b75a8e0d1a4b13b91c5a36ae23573f58f9a28e10a4cc0e265e657": {
+    "query": "\n                SELECT id, name, age\n                    FROM t_user\n                ORDER BY id\n            ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": {
+            "type": "Long",
+            "flags": {
+              "bits": 515
+            },
+            "char_set": 63,
+            "max_size": 11
+          }
+        },
+        {
+          "ordinal": 1,
+          "name": "name",
+          "type_info": {
+            "type": "Blob",
+            "flags": {
+              "bits": 16
+            },
+            "char_set": 224,
+            "max_size": 262140
+          }
+        },
+        {
+          "ordinal": 2,
+          "name": "age",
+          "type_info": {
+            "type": "Long",
+            "flags": {
+              "bits": 0
+            },
+            "char_set": 63,
+            "max_size": 11
+          }
+        }
+      ],
+      "parameters": {
+        "Right": 0
+      },
+      "nullable": [
+        false,
+        true,
+        true
+      ]
+    }
+  }
+}
