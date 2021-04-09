@@ -1,7 +1,6 @@
 use crate::RootSchema;
-use actix_web::{guard, web, App, HttpResponse, HttpServer, Result};
+use actix_web::{web, HttpResponse, Result};
 use async_graphql::http::{playground_source, GraphQLPlaygroundConfig};
-use async_graphql::{EmptyMutation, EmptySubscription, Schema};
 use async_graphql_actix_web::{Request, Response};
 
 pub async fn graphql(schema: web::Data<RootSchema>, req: Request) -> Response {
