@@ -2,7 +2,7 @@ use crate::handler::default::*;
 use crate::handler::query::*;
 use actix_files as fs;
 use actix_web::http::{header, Method, StatusCode};
-use actix_web::{error, guard, web, HttpRequest, HttpResponse};
+use actix_web::{error, web, HttpRequest, HttpResponse};
 use std::io;
 
 pub fn config_app(cfg: &mut web::ServiceConfig) {
