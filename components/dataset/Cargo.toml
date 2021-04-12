@@ -7,3 +7,12 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+anyhow = "1.0.28"
+async-trait = "0.1.48"
+async-graphql = "2.7.3"
+async-graphql-actix-web = "2.7.3"
+sqlx = { version = "0.4.2", features = [ "mysql","runtime-tokio-native-tls", "offline"] }
+serde = { version = "1.0", features = ["derive"] }
+
+engine_craits = { path = "../../craits/engine_crait", version = "0.1.0"}
+crud_crait = { path = "../../craits/crud_crait", version = "0.1.0"}

@@ -7,6 +7,8 @@ edition = "2018"
 [dependencies]
 clickhouse-rs = { git = "https://gitee.com/nauu/clickhouse-rs", rev = "67c3bcb14751e05b83b3592fa9ee9f6ad2f408c6" }
 tokio = {version = "*", features = ["full"]}
-query = {path = "../../query",version = "0.1.0"}
-engine_craits = {path = "../../engine_craits",version = "0.1.0"}
 async-trait = "0.1.48"
+serde = { version = "1.0", features = ["derive"] }
+
+query = {path = "../../query",version = "0.1.0"}
+engine_craits = {path = "../../craits/engine_crait",version = "0.1.0"}

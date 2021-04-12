@@ -14,3 +14,5 @@ actix-web = "3"
 sqlx = { version = "0.4.2", features = [ "mysql","runtime-tokio-native-tls" ] }
 
 user = {path = "../user",version = "0.1.0"}
+dataset = {path = "../dataset",version = "0.1.0"}
+crud_crait = {path = "../../craits/crud_crait",version = "0.1.0"}

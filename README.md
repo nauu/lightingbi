@@ -1,5 +1,5 @@
 # lightingbi
-Intelligent analysis system by Rust, A Practice Rust project
+Intelligent analysis system by Rust, A Practice Rust project.
 
 # Usage
 
@@ -11,7 +11,7 @@ Intelligent analysis system by Rust, A Practice Rust project
 
 ## Set up the database
 
-* Create new database using `components/user/schema.sql`
+* Create new database using `src/schema.sql`
 
 ## Run the application
 
@@ -38,4 +38,15 @@ cargo install cross
 
 #x86_64 linux
 cross build --target=x86_64-unknown-linux-musl --release --features vendored
+```
+
+```shell
+#docker
+docker build -t lightningbi:0.1.0 .
+```
+
+```shell
+#doc
+cargo doc --no-deps --workspace  --open
+
 ```

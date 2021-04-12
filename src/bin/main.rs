@@ -48,7 +48,7 @@ async fn main() -> anyhow::Result<()> {
             .wrap(CookieSession::signed(&[0; 32]).secure(false))
             // enable logger - always register actix-web Logger middleware last
             .wrap(middleware::Logger::default())
-            .wrap(auth)
+            // .wrap(auth)
             // default
             .configure(init_config::config_app) // init routes app
             .configure(init_config::config_static) // init routes static
