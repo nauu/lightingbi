@@ -55,6 +55,8 @@ members = [
     "components/connectors/connector_craits",
     "components/connectors/csv",
     "components/connectors/excel",
+    "components/dataset",
+    "components/chart",
 ]
 
 
