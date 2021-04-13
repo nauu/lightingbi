@@ -3,7 +3,6 @@ use chrono::{Duration, NaiveDate};
 use connector_craits::FileConnector;
 use std::env;
 use std::error::Error;
-use std::fs::File;
 use std::io::{BufWriter, Write};
 use std::path::PathBuf;
 
