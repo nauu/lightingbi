@@ -50,6 +50,7 @@ members = [
     "engines/clickhouse",
     "craits/engine_crait",
     "craits/crud_crait",
+    "craits/util_crait",
     "components/user",
     "components/data_assemble",
     "components/graphql",

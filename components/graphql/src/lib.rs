@@ -1,6 +1,8 @@
 mod handler;
 pub mod mutation_root;
 pub mod query_root;
+pub mod query_user;
+pub mod query_dataset;
 
 pub use self::query_root::QueryRoot;
 use crate::handler::{graphql, graphql_playground};
@@ -11,7 +13,7 @@ use sqlx::MySqlPool;
 pub type RootSchema = Schema<QueryRoot, EmptyMutation, EmptySubscription>;
 
 pub fn create_schema(pool: &MySqlPool) -> RootSchema {
-    Schema::build(QueryRoot, EmptyMutation, EmptySubscription)
+    Schema::build(QueryRoot::default(), EmptyMutation, EmptySubscription)
         .data(pool.clone())
         .finish()
 }

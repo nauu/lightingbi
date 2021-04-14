@@ -91,7 +91,7 @@ mod tests {
     #[tokio::test]
     async fn test_crud() -> Result<()> {
         dotenv::dotenv().ok();
-        let database_url = env::var("DATABASE_URL").expect("DATABASE_URL is not set in .env file");
+        let database_url = "mysql://root:1234.abcd@10.121.55.26:3306/lighting".to_string();
         let db_pool = MySqlPool::connect(&database_url).await?;
 
         //create
