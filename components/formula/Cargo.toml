@@ -1,0 +1,13 @@
+[package]
+name = "formula"
+version = "0.1.0"
+authors = ["zhukai <zhukai@apache.org>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+neo4rs = "0.5.8"
+async-trait = "0.1.48"
+futures = "0.3.14"
+eval = "0.4.3"

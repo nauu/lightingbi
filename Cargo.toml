@@ -59,6 +59,7 @@ members = [
     "components/connectors/excel",
     "components/dataset",
     "components/chart",
+    "components/formula",
 ]
 
 
