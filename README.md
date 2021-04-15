@@ -1,5 +1,5 @@
 # lightingbi
-Intelligent analysis system by Rust, A Practice Rust project.
+Intelligent analysis system by Rust, A practice rust project.
 
 # Usage
 
