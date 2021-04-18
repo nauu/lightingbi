@@ -1,7 +1,8 @@
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
-use sqlx::MySqlPool;
+use sqlx::mysql::MySqlRow;
 use sqlx::{Done, FromRow};
+use sqlx::{MySqlPool, Row};
 
 #[derive(Debug, Deserialize, Serialize, Clone, FromRow)]
 pub struct User {
@@ -23,7 +24,7 @@ impl User {
 
     pub async fn create(user: User, pool: &MySqlPool) -> Result<u64> {
         let mut tx = pool.begin().await?;
-        let user_id = sqlx::query(" INSERT INTO t_user (name, age) VALUES (?, ?)")
+        let user_id = sqlx::query(" INSERT INTO t_lighting_user (name, age) VALUES (?, ?)")
             .bind(user.name)
             .bind(user.age)
             .execute(&mut tx)
@@ -36,20 +37,21 @@ impl User {
 
     pub async fn update(user: User, pool: &MySqlPool) -> Result<bool> {
         let mut tx = pool.begin().await?;
-        let rows_affected = sqlx::query("UPDATE t_user SET name = ?, age = ? WHERE id = ?")
-            .bind(&user.name)
-            .bind(user.age)
-            .bind(user.id)
-            .execute(&mut tx)
-            .await?
-            .rows_affected();
+        let rows_affected =
+            sqlx::query("UPDATE t_lighting_user SET name = ?, age = ? WHERE id = ?")
+                .bind(&user.name)
+                .bind(user.age)
+                .bind(user.id)
+                .execute(&mut tx)
+                .await?
+                .rows_affected();
 
         tx.commit().await?;
         Ok(rows_affected > 0)
     }
 
     pub async fn delete(id: u64, pool: &MySqlPool) -> Result<bool> {
-        let deleted = sqlx::query("DELETE FROM t_user WHERE id = ?")
+        let deleted = sqlx::query("DELETE FROM t_lighting_user WHERE id = ?")
             .bind(id)
             .execute(pool)
             .await?
@@ -59,24 +61,16 @@ impl User {
     }
 
     pub async fn find_all(pool: &MySqlPool) -> Result<Vec<User>> {
-        let mut users = vec![];
-        let recs = sqlx::query!(
-            r#"
-                SELECT id, name, age
-                    FROM t_user
-                ORDER BY id
-            "#
-        )
-        .fetch_all(pool)
-        .await?;
-
-        for rec in recs {
-            users.push(User {
-                id: rec.id as u64,
-                name: rec.name,
-                age: rec.age,
-            });
-        }
+        let users = sqlx::query("SELECT id, name, age FROM t_lighting_user ORDER BY id")
+            .try_map(|row: MySqlRow| {
+                Ok(User {
+                    id: row.try_get::<u64, _>(0)?,
+                    name: row.try_get::<Option<String>, _>(1)?,
+                    age: row.try_get::<Option<i32>, _>(2)?,
+                })
+            })
+            .fetch_all(pool)
+            .await?;
 
         Ok(users)
     }
@@ -91,7 +85,7 @@ mod tests {
     #[tokio::test]
     async fn test_crud() -> Result<()> {
         dotenv::dotenv().ok();
-        let database_url = "mysql://root:1234.abcd@10.121.55.26:3306/lighting".to_string();
+        let database_url = env::var("DATABASE_URL").expect("DATABASE_URL is not set in .env file");
         let db_pool = MySqlPool::connect(&database_url).await?;
 
         //create

@@ -1,5 +1,5 @@
-CREATE TABLE IF NOT EXISTS t_user (
-    `id` int(11) NOT NULL AUTO_INCREMENT,
+CREATE TABLE IF NOT EXISTS t_lighting_user (
+    `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     `name` text DEFAULT NULL,
     `age` int,
     PRIMARY KEY (`id`)
