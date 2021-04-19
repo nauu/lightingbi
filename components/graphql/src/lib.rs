@@ -9,11 +9,12 @@ use crate::handler::{graphql, graphql_playground};
 use actix_web::web;
 use async_graphql::{EmptyMutation, EmptySubscription, Schema};
 use sqlx::MySqlPool;
+use crate::query_root::MutationRoot;
 
-pub type RootSchema = Schema<QueryRoot, EmptyMutation, EmptySubscription>;
+pub type RootSchema = Schema<QueryRoot, MutationRoot, EmptySubscription>;
 
 pub fn create_schema(pool: &MySqlPool) -> RootSchema {
-    Schema::build(QueryRoot::default(), EmptyMutation, EmptySubscription)
+    Schema::build(QueryRoot::default(), MutationRoot::default(), EmptySubscription)
         .data(pool.clone())
         .finish()
 }

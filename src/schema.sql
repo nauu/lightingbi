@@ -25,4 +25,4 @@ CREATE TABLE IF NOT EXISTS t_lighting_field (
     `display_name` varchar(128),
     `formula` varchar(128),
     PRIMARY KEY (`id`)
-    )ENGINE=InnoDB;
+)ENGINE=InnoDB;

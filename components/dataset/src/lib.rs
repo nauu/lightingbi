@@ -1,4 +1,4 @@
-mod dataset;
+pub mod dataset;
 
 
 
