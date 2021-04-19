@@ -33,6 +33,7 @@ async-graphql-actix-web = "2.7.3"
 
 user = {path = "components/user",version = "0.1.0"}
 graphql = {path = "components/graphql",version = "0.1.0"}
+formula = {path = "components/formula",version = "0.1.0"}
 
 
 # Add openssl-sys as a direct dependency so it can be cross compiled to
