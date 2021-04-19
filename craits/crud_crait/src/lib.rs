@@ -1,5 +1,5 @@
-mod entity;
-mod repository;
+pub mod entity;
+
 
 use anyhow::Result;
 use async_trait::async_trait;

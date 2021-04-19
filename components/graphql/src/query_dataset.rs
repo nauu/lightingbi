@@ -1,6 +1,9 @@
 use async_graphql::{Context, FieldResult, Object};
 use crud_crait::CRUD;
 use sqlx::MySqlPool;
+use dataset::dataset::{DataSetOutObject, DataSetInputObject, DataSetResolver};
+use crud_crait::entity::{PageRequest, Page};
+use std::collections::BTreeMap;
 
 #[derive(Default)]
 pub struct QueryDataset;
@@ -14,5 +17,32 @@ impl QueryDataset{
         // let datasets = Dataset::find_all(pool).await?;
         //println!("datasets: {:?}", datasets);
         Ok(vec![])
+    }
+
+    async fn find_dataset_by_id(&self, ctx: &Context<'_>,id:String) -> FieldResult<DataSetOutObject> {
+        let pool = ctx.data_unchecked::<MySqlPool>();
+
+        let output = DataSetResolver::find_by_id(&id , pool).await?;
+        Ok(output)
+    }
+
+    async fn find_dataset_page(&self, ctx: &Context<'_>,page:PageRequest) -> FieldResult<Page<DataSetOutObject>> {
+        let pool = ctx.data_unchecked::<MySqlPool>();
+        let params = BTreeMap :: new();
+
+        let output = DataSetResolver::find_by_page(&page , &params ,  pool).await?;
+        Ok(output)
+    }
+}
+
+#[derive(Default)]
+pub struct MutationDataset;
+
+#[Object]
+impl MutationDataset {
+    async fn create_dataset(&self, ctx: &Context<'_> , datasetObject : DataSetInputObject) -> FieldResult<DataSetOutObject>{
+        let pool = ctx.data_unchecked::<MySqlPool>();
+        let output = DataSetResolver::create(&datasetObject , pool).await?;
+        Ok(output)
     }
 }
