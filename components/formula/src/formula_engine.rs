@@ -1,9 +1,11 @@
 use crate::formula_function_default::*;
+use crate::formula_node::*;
 use crate::neo4j_session::Node_Source_Type;
 use evalexpr::*;
 use neo4rs::{query, Graph, Node, Result, Row, RowStream};
 use regex::{Captures, Regex};
 use serde::{Deserialize, Serialize};
+use serde_json::Result as jsonResult;
 use std::collections::HashMap;
 use util_crait::uuid_util;
 
@@ -144,6 +146,9 @@ impl FormulaEngine {
 
     ///执行计算
     async fn run(&mut self, mut params: HashMap<String, String>, graph: &Graph) -> Result<String> {
+        if self.check_cycle(graph).await {
+            return Ok("".to_string());
+        }
         let q = query("MATCH p = ((leftNode)-[rel:relation*]->(rightNode)) where leftNode.formula_id=$formula_id  RETURN leftNode,rel,rightNode ,length(p) as depth order by depth desc").param("formula_id",self.id.clone());
         let mut result = graph.execute(q).await.unwrap();
 
@@ -253,10 +258,88 @@ impl FormulaEngine {
     }
 
     ///返回公式的树形依赖结构
-    async fn tree() {}
+    async fn tree(&mut self, graph: &Graph) -> Result<FormulaTree> {
+        FormulaEngine::tree_by_id(&self.id, graph).await
+    }
 
-    ///检查公式是否有循环依赖
-    async fn check_cycle() {}
+    ///返回公式的树形依赖结构
+    pub async fn tree_by_id(formula_id: &String, graph: &Graph) -> Result<FormulaTree> {
+        let q = query("MATCH p = ((leftNode)-[rel:relation*]->(rightNode)) where leftNode.formula_id=$formula_id and length(p) =1  RETURN leftNode,rel,rightNode ,length(p) as depth order by depth desc").param("formula_id",formula_id.clone());
+        let mut result = graph.execute(q).await.unwrap();
+        let mut nodes = Vec::<FormulaNode>::new();
+        let mut relations = Vec::<FormulaNodeRelation>::new();
+        let mut nodesMap = HashMap::<String, i32>::new();
+        let mut relationKeys = Vec::<String>::new();
+        while let Ok(Some(row)) = result.next().await {
+            let leftNode: Node = row.get("leftNode").unwrap();
+            let leftName: String = leftNode.get("name").unwrap();
+
+            let mut source_index = 1;
+            if nodesMap.contains_key(&leftName) {
+                source_index = nodesMap.get(&leftName).unwrap().clone();
+            } else {
+                source_index = nodesMap.len() as i32;
+
+                nodesMap.insert(leftName.clone(), source_index + 1);
+
+                nodes.push(FormulaNode::new(
+                    leftName,
+                    leftNode.get("formula").unwrap(),
+                    formula_id.clone(),
+                ));
+            }
+
+            let rightNode: Node = row.get("rightNode").unwrap();
+            let rightName: String = rightNode.get("name").unwrap();
+
+            let mut target_index = 1;
+            if nodesMap.contains_key(&rightName) {
+                target_index = nodesMap.get(&rightName).unwrap().clone();
+            } else {
+                target_index = nodesMap.len() as i32;
+
+                nodesMap.insert(rightName.clone(), target_index + 1);
+
+                nodes.push(FormulaNode::new(
+                    rightName,
+                    leftNode.get("formula").unwrap(),
+                    formula_id.clone(),
+                ));
+            }
+            let relationKey = format!("{}->{}", source_index, target_index);
+            if !relationKeys.contains(&relationKey) {
+                relations.push(FormulaNodeRelation::new(
+                    source_index.to_string(),
+                    target_index.to_string(),
+                    formula_id.clone(),
+                ))
+            }
+        }
+
+        Ok(FormulaTree::new(relations, nodes))
+    }
+
+    ///检查公式是否有循环依赖 true 存在依赖
+    async fn check_cycle(&mut self, graph: &Graph) -> bool {
+        let q = query("MATCH path = ((x:Formula)-[:relation*]->(y:Formula)) where x.formula_id = $formula_id and x.name = y.name and length(path) >1 RETURN length(path)").param("formula_id", self.id.clone());
+
+        let mut result = graph.execute(q).await.unwrap();
+
+        let firstRowOption = result.next().await.unwrap();
+
+        firstRowOption.is_some()
+    }
+
+    ///检查公式是否有循环依赖 true 存在依赖
+    pub async fn check_cycle_by_id(formula_id: &String, graph: &Graph) -> bool {
+        let q = query("MATCH path = ((x:Formula)-[:relation*]->(y:Formula)) where x.formula_id = $formula_id and x.name = y.name and length(path) >1 RETURN length(path)").param("formula_id", formula_id.clone());
+
+        let mut result = graph.execute(q).await.unwrap();
+
+        let firstRowOption = result.next().await.unwrap();
+
+        firstRowOption.is_some()
+    }
 
     ///打印公式信息
     async fn print(&self) {
@@ -296,12 +379,13 @@ mod tests {
     async fn test_vals() -> Result<()> {
         let graph = Neo4jSession::get_graph().await?;
         let formula = "a=10##b=20##f=avg([a],[b],[c],4)+1##c=[a]*[b]##g=[c]*[f]";
-        let mut fe = FormulaEngine::form((&"test_formula_id_1").to_string());
+        let mut fe = FormulaEngine::form((&"test_formula_id_2").to_string());
         fe.vals("a=10".to_string()).await;
         fe.vals("b=20".to_string()).await;
         fe.vals("f=avg([a],[b],[c],4)+1".to_string()).await;
-        fe.vals("c=[a]*[b]".to_string()).await;
+        fe.vals("c=[a]*[b]+[e]".to_string()).await;
         fe.vals("g=[c]*[f]".to_string()).await;
+        fe.vals("e=[g]/3".to_string()).await;
         fe.save(&graph).await;
         let mut params = HashMap::<String, String>::new();
         params.insert("a".to_string(), "10".to_string());
@@ -313,7 +397,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_run() -> Result<()> {
-        let mut fe = FormulaEngine::form((&"test_formula_id").to_string());
+        let mut fe = FormulaEngine::form((&"test_formula_id_1").to_string());
         let graph = Neo4jSession::get_graph().await?;
         let mut params = HashMap::<String, String>::new();
         params.insert("a".to_string(), "10".to_string());
@@ -388,6 +472,31 @@ mod tests {
             .as_millis();
         println!("end:{}", &end);
         println!("耗时：{}", (end - start));
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn test_check_cycle() -> Result<()> {
+        let graph = Neo4jSession::get_graph().await?;
+        let b = FormulaEngine::check_cycle_by_id(&("test_formula_id_2".to_string()), &graph).await;
+        println!("check_cycle_by_id:{}", b);
+
+        let mut fe = FormulaEngine::form((&"test_formula_id").to_string());
+        let b = fe.check_cycle(&graph).await;
+        println!("check_cycle:{}", b);
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn test_tree() -> Result<()> {
+        let graph = Neo4jSession::get_graph().await?;
+
+        let mut fe = FormulaEngine::form((&"test_formula_id").to_string());
+
+        let tree = fe.tree(&graph).await.unwrap();
+        println!("test_tree:{}", serde_json::to_string(&tree).unwrap());
+
         Ok(())
     }
 }
