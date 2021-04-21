@@ -146,6 +146,7 @@ impl FormulaEngine {
 
     ///执行计算
     async fn run(&mut self, mut params: HashMap<String, String>, graph: &Graph) -> Result<String> {
+
         if self.check_cycle(graph).await {
             return Ok("".to_string());
         }
@@ -169,6 +170,7 @@ impl FormulaEngine {
 
         let firstNode: Node = firstRow.get("leftNode").unwrap();
         let mut first_formula = firstNode.get("formula").unwrap();
+
 
         let result: f64 = self.eval_formula(&params, first_formula).await.unwrap();
         println!("result:{}", result);
