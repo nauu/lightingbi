@@ -50,7 +50,7 @@ pub async fn with_param(
     req: HttpRequest,
     web::Path((name,)): web::Path<(String,)>,
 ) -> HttpResponse {
-    // println!("{:?}", req);
+    println!("{:?}", req);
 
     HttpResponse::Ok()
         .content_type("text/plain")
