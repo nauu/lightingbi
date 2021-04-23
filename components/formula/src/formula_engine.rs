@@ -9,7 +9,7 @@ use serde_json::Result as jsonResult;
 use std::collections::HashMap;
 use util_crait::uuid_util;
 
-struct FormulaEngine {
+pub struct FormulaEngine {
     /// id
     pub id: String,
     /// 表达式
@@ -18,7 +18,7 @@ struct FormulaEngine {
 
 impl FormulaEngine {
     ///创建一个随机id的新实例
-    fn new() -> Self {
+    pub fn new() -> Self {
         //random id
         let id = uuid_util::get_uuid();
         Self {
@@ -28,7 +28,7 @@ impl FormulaEngine {
     }
 
     ///根据id返回一个已经存在的实例
-    fn form(id: String) -> Self {
+    pub fn form(id: String) -> Self {
         Self {
             id,
             formula_strs: "".to_string(),
@@ -363,7 +363,7 @@ mod tests {
     // a=10##b=20##f=getvalue(1,2,3,4,'abc')+1##c=$a+$b##g=$c*$f##
     #[tokio::test]
     async fn it_works() -> Result<()> {
-        let graph = Neo4jSession::get_graph().await?;
+        let graph = Neo4jSession::get_graph().await.unwrap();
         let formula = "a=10##b=20##f=avg([a],[b],[c],4)+1##c=[a]*[b]##g=[c]*[f]";
         let le = FormulaEngine::formula_format(
             &*formula.to_string(),
@@ -377,7 +377,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_vals() -> Result<()> {
-        let graph = Neo4jSession::get_graph().await?;
+        let graph = Neo4jSession::get_graph().await.unwrap();
         let formula = "a=10##b=20##f=avg([a],[b],[c],4)+1##c=[a]*[b]##g=[c]*[f]";
         let mut fe = FormulaEngine::form((&"test_formula_id_2").to_string());
         fe.vals("a=10".to_string()).await;
@@ -398,7 +398,7 @@ mod tests {
     #[tokio::test]
     async fn test_run() -> Result<()> {
         let mut fe = FormulaEngine::form((&"test_formula_id_1").to_string());
-        let graph = Neo4jSession::get_graph().await?;
+        let graph = Neo4jSession::get_graph().await.unwrap();
         let mut params = HashMap::<String, String>::new();
         params.insert("a".to_string(), "10".to_string());
         params.insert("b".to_string(), "20".to_string());
@@ -410,7 +410,7 @@ mod tests {
     #[tokio::test]
     async fn test_check_by_id() -> Result<()> {
         let mut fe = FormulaEngine::form((&"test_formula_id").to_string());
-        let graph = Neo4jSession::get_graph().await?;
+        let graph = Neo4jSession::get_graph().await.unwrap();
         let v = fe.check_by_id(&graph).await;
         println!("value:{}", v);
 
@@ -425,7 +425,7 @@ mod tests {
             .as_millis();
         println!("start:{}", &start);
         // let mut handles = vec![];
-        let graph = Neo4jSession::get_graph().await?;
+        let graph = Neo4jSession::get_graph().await.unwrap();
         for j in 0..100 {
             println!("------{}", j);
             let mut fe = FormulaEngine::form((&"test_formula_id").to_string());
@@ -477,7 +477,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_check_cycle() -> Result<()> {
-        let graph = Neo4jSession::get_graph().await?;
+        let graph = Neo4jSession::get_graph().await.unwrap();
         let b = FormulaEngine::check_cycle_by_id(&("test_formula_id_2".to_string()), &graph).await;
         println!("check_cycle_by_id:{}", b);
 
@@ -490,7 +490,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_tree() -> Result<()> {
-        let graph = Neo4jSession::get_graph().await?;
+        let graph = Neo4jSession::get_graph().await.unwrap();
 
         let mut fe = FormulaEngine::form((&"test_formula_id").to_string());
 

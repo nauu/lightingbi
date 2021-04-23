@@ -12,7 +12,10 @@ async-graphql-actix-web = "2.7.3"
 actix-web = "3"
 #sqlx = { version = "0.4.2", features = [ "mysql","runtime-tokio-rustls" ] }
 sqlx = { version = "0.4.2", features = [ "mysql","runtime-tokio-native-tls" ] }
+neo4rs = "= 0.5.3"
 
 user = {path = "../user",version = "0.1.0"}
 dataset = {path = "../dataset",version = "0.1.0"}
 crud_crait = {path = "../../craits/crud_crait",version = "0.1.0"}
+
+formula = {path = "../formula",version = "0.1.0"}

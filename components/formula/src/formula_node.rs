@@ -1,4 +1,7 @@
 use crate::neo4j_session::Node_Source_Type;
+use async_graphql::{
+    ContextSelectionSet, InputObject, OutputType, Positioned, ServerResult, SimpleObject,
+};
 use serde::{Deserialize, Serialize};
 use std::error::Error;
 
@@ -14,6 +17,8 @@ pub struct FormulaNode {
     ///所以完整公式的ID
     formula_id: String,
 }
+
+::async_graphql::scalar!(FormulaNode);
 
 impl FormulaNode {
     pub fn new(key: String, formula: String, formula_id: String) -> Self {
@@ -37,6 +42,8 @@ pub struct FormulaNodeRelation {
     formula_id: String,
 }
 
+::async_graphql::scalar!(FormulaNodeRelation);
+
 impl FormulaNodeRelation {
     pub fn new(source_index: String, target_index: String, formula_id: String) -> Self {
         Self {
@@ -48,7 +55,7 @@ impl FormulaNodeRelation {
 }
 
 ///表达式查询结果树
-#[derive(Debug, Deserialize, Serialize, Clone)]
+#[derive(Debug, Deserialize, Serialize, Clone, SimpleObject)]
 pub struct FormulaTree {
     relations: Vec<FormulaNodeRelation>,
     nodes: Vec<FormulaNode>,

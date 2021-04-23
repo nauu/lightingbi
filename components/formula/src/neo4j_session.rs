@@ -1,9 +1,10 @@
+use anyhow::Result;
 use dotenv;
-use neo4rs::*;
+use neo4rs::{config, query, Config, Graph, Node, Row, RowStream};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::env;
-extern crate lazy_static;
+use std::sync::Arc;
 
 // azy_static! {
 //     static ref Neo4jSession: Neo4jSession = {
@@ -11,7 +12,7 @@ extern crate lazy_static;
 //     };
 // }
 
-pub(crate) struct Neo4jSession {
+pub struct Neo4jSession {
     graph: Graph,
 }
 // /// Returns a [`Query`] which provides methods like [`Query::param`] to add parameters to the query
@@ -33,9 +34,9 @@ impl Node_Source_Type {
 }
 
 impl Neo4jSession {
-    pub async fn get_graph() -> Result<Graph> {
+    pub async fn get_graph() -> Result<Arc<Graph>> {
         let config = Neo4jSession::get_config().await;
-        let graph = Graph::connect(config).await.unwrap();
+        let graph = Arc::new(Graph::connect(config).await.unwrap());
         println!("获取连接");
         Ok(graph)
     }
