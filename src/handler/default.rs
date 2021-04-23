@@ -12,7 +12,7 @@ pub async fn favicon() -> Result<fs::NamedFile> {
 /// simple index handler
 #[get("/welcome")]
 pub async fn welcome(session: Session, req: HttpRequest) -> Result<HttpResponse> {
-    // println!("{:?}", req);
+    println!("{:?}", req);
 
     // session
     let mut counter = 1;
