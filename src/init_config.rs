@@ -2,10 +2,11 @@ use crate::handler::default::*;
 use crate::handler::query::*;
 use actix_files as fs;
 use actix_web::http::{header, Method, StatusCode};
+use actix_web::web::ServiceConfig;
 use actix_web::{error, web, HttpRequest, HttpResponse};
 use std::io;
 
-pub fn config_app(cfg: &mut web::ServiceConfig) {
+pub fn config_app(cfg: &mut ServiceConfig) {
     cfg.service(favicon)
         // register simple route, handle all methods
         .service(welcome)
@@ -29,7 +30,7 @@ pub fn config_app(cfg: &mut web::ServiceConfig) {
         }));
 }
 
-pub fn config_static(cfg: &mut web::ServiceConfig) {
+pub fn config_static(cfg: &mut ServiceConfig) {
     // static files
     cfg.service(fs::Files::new("/static", "../../static").show_files_listing())
         // redirect

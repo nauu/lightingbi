@@ -22,7 +22,7 @@ pub async fn welcome(session: Session, req: HttpRequest) -> Result<HttpResponse>
     }
 
     // set counter to session
-    session.set("counter", counter)?;
+    session.insert("counter", counter)?;
 
     // response
     Ok(HttpResponse::build(StatusCode::OK)
@@ -46,10 +46,8 @@ pub async fn p404() -> Result<fs::NamedFile> {
 // }
 
 /// handler with path parameters like `/models/{name}/`
-pub async fn with_param(
-    req: HttpRequest,
-    web::Path((name,)): web::Path<(String,)>,
-) -> HttpResponse {
+pub async fn with_param(req: HttpRequest, path: web::Path<(u32, String)>) -> HttpResponse {
+    let (id, name) = path.into_inner();
     println!("{:?}", req);
 
     HttpResponse::Ok()

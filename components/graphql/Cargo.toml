@@ -7,12 +7,16 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-async-graphql = "2.7.3"
-async-graphql-actix-web = "2.7.3"
-actix-web = "3"
+async-graphql = "2.8.4"
+async-graphql-actix-web = "2.8.4"
+actix-web = "= 4.0.0-beta.5"
+neo4rs = "0.3.9"
+serde_json = "1.0"
+
 #sqlx = { version = "0.4.2", features = [ "mysql","runtime-tokio-rustls" ] }
 sqlx = { version = "0.4.2", features = [ "mysql","runtime-tokio-native-tls" ] }
 
 user = {path = "../user",version = "0.1.0"}
 dataset = {path = "../dataset",version = "0.1.0"}
 crud_crait = {path = "../../craits/crud_crait",version = "0.1.0"}
+formula = {path = "../formula",version = "0.1.0"}

@@ -9,6 +9,7 @@ use actix_web_httpauth::extractors::basic::BasicAuth;
 use actix_web_httpauth::extractors::bearer::BearerAuth;
 use actix_web_httpauth::middleware::HttpAuthentication;
 use dotenv;
+use formula::neo4j_session::Neo4jSession;
 use lightingbi::handler::default::p404;
 use lightingbi::init_config;
 use listenfd::ListenFd;
@@ -36,11 +37,13 @@ async fn main() -> anyhow::Result<()> {
 
     let database_url = env::var("DATABASE_URL").expect("DATABASE_URL is not set in .env file");
     let db_pool = MySqlPool::connect(&database_url).await?;
-    let schema = graphql::create_schema(&db_pool);
+    let neo4j_graph = Neo4jSession::get_graph().await.unwrap();
+    let schema = graphql::create_schema(&db_pool, &neo4j_graph);
 
     let mut server = HttpServer::new(move || {
         // let auth = HttpAuthentication::bearer(validator);
         let auth = HttpAuthentication::basic(validator);
+
         App::new()
             .data(schema.clone())
             .data(db_pool.clone()) // pass database pool to application so we can access it inside handlers
