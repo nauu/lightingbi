@@ -1,7 +1,7 @@
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use sqlx::mysql::MySqlRow;
-use sqlx::{Done, FromRow};
+use sqlx::FromRow;
 use sqlx::{MySqlPool, Row};
 
 #[derive(Debug, Deserialize, Serialize, Clone, FromRow)]

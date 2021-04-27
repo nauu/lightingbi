@@ -1,33 +1,17 @@
-use actix_web::{post, web, Error, HttpRequest, HttpResponse};
-use json::JsonValue;
-use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
+use std::convert::Infallible;
+use warp::{Filter, Rejection};
 
-#[derive(Debug, Serialize, Deserialize)]
-pub struct MyObj {
-    name: String,
-    number: i32,
+pub fn route() -> impl Filter<Extract = impl warp::Reply, Error = Rejection> + Clone {
+    warp::path!("query")
+        .and(warp::post())
+        // Only accept bodies smaller than 16kb...
+        .and(warp::body::content_length_limit(1024 * 16))
+        .and(warp::body::json())
+        .and_then(list_sample)
 }
 
-/// This handler uses json extractor with limit
-#[post("/query")]
-pub async fn query(item: web::Json<MyObj>, req: HttpRequest) -> HttpResponse {
-    println!("request: {:?}", req);
-    println!("model: {:?}", &item);
-    HttpResponse::Ok().json(item.0) // <- send response
-}
-
-/// This handler manually load request payload and parse json-rust
-#[post("/query_str")]
-pub async fn query_str(body: web::Bytes) -> Result<HttpResponse, Error> {
-    // body is loaded, now we can deserialize json-rust
-    let result = json::parse(std::str::from_utf8(&body).unwrap()); // return Result
-    let v_json: JsonValue = match result {
-        Ok(v) => v,
-        Err(e) => json::object! {"err" => e.to_string() },
-    };
-    println!("model: {:?}", v_json);
-
-    Ok(HttpResponse::Ok()
-        .content_type("application/json")
-        .body(v_json.dump()))
+async fn list_sample(data: HashMap<String, String>) -> Result<impl warp::Reply, Infallible> {
+    debug!("{:?}", data);
+    Ok(warp::reply::json(&data))
 }

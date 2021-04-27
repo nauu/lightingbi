@@ -1,21 +1,21 @@
 use anyhow::Result;
 use async_trait::async_trait;
 use crud_crait::CRUD;
-use engine_craits::Engine_Type;
+use engine_craits::EngineType;
 use serde::{Deserialize, Serialize};
-use sqlx::{MySqlPool , FromRow};
-use sqlx::Done;
+use sqlx::{FromRow, MySqlPool};
 use util_crait::uuid_util;
 
-use std::rc::Rc;
-use std::cell::RefCell;
+use async_graphql::{
+    ContextSelectionSet, InputObject, OutputType, Positioned, ServerResult, SimpleObject,
+};
 use crud_crait::entity::{Entity, MySqlRepository, Page, PageRequest};
-use async_graphql::{OutputType, ContextSelectionSet, ServerResult, Positioned , InputObject , SimpleObject};
+use std::cell::RefCell;
 use std::collections::BTreeMap;
-
+use std::rc::Rc;
 
 ///The entity of Dataset
-#[derive(Debug, Deserialize, Serialize, Clone , FromRow)]
+#[derive(Debug, Deserialize, Serialize, Clone, FromRow)]
 pub struct Dataset {
     ///primary key
     pub id: String,
@@ -31,22 +31,22 @@ pub struct Dataset {
 
 ::async_graphql::scalar!(Dataset);
 
-impl Entity for Dataset{}
+impl Entity for Dataset {}
 
-impl Default for Dataset{
+impl Default for Dataset {
     fn default() -> Self {
-        Self{
+        Self {
             id: "".to_string(),
             name: "".to_string(),
             display_name: "".to_string(),
-            engine_type: Engine_Type::ClickHouse.getType(),
+            engine_type: EngineType::ClickHouse.get_type(),
             size: 0.0,
-            count: 0
+            count: 0,
         }
     }
 }
 
-#[derive(Debug, Deserialize, Serialize, Clone , Copy)]
+#[derive(Debug, Deserialize, Serialize, Clone, Copy)]
 pub enum DataType {
     Text,
     Number,
@@ -56,14 +56,14 @@ pub enum DataType {
 impl DataType {
     pub fn get_type_name(&self) -> String {
         match self {
-            Text=> "Test".to_string(),
-            Number=> "Number".to_string(),
-            Date=> "Date".to_string()
+            Text => "Test".to_string(),
+            Number => "Number".to_string(),
+            Date => "Date".to_string(),
         }
     }
 }
 
-#[derive(Debug, Deserialize, Serialize, Clone , FromRow)]
+#[derive(Debug, Deserialize, Serialize, Clone, FromRow)]
 pub struct Field {
     pub id: String,
     pub name: String,
@@ -87,40 +87,44 @@ impl Default for Field {
             data_type: DataType::Text.get_type_name(),
             field_type: "".to_string(),
             display_name: "".to_string(),
-            formula: "".to_string()
+            formula: "".to_string(),
         }
     }
 }
 
-#[derive(InputObject , Debug)]
+#[derive(InputObject, Debug)]
 pub struct DataSetInputObject {
-    pub dataset:Dataset,
-    pub fields:Vec<Field>,
+    pub dataset: Dataset,
+    pub fields: Vec<Field>,
 }
 
-#[derive(SimpleObject , Debug)]
+#[derive(SimpleObject, Debug)]
 pub struct DataSetOutObject {
-    pub dataset:Dataset,
-    pub fields:Vec<Field>,
+    pub dataset: Dataset,
+    pub fields: Vec<Field>,
 }
 
 pub struct DataSetResolver;
 
 impl DataSetResolver {
-
-    pub async fn create(dataset: &DataSetInputObject, pool: &MySqlPool) -> Result<DataSetOutObject> {
+    pub async fn create(
+        dataset: &DataSetInputObject,
+        pool: &MySqlPool,
+    ) -> Result<DataSetOutObject> {
         let mut new_dataset = dataset.dataset.clone();
         let id = uuid_util::get_uuid();
         new_dataset.id = id.clone();
-        if new_dataset.name.is_empty(){
+        if new_dataset.name.is_empty() {
             new_dataset.name = "t_".to_string() + &uuid_util::get_short_uuid();
         }
 
-        MySqlRepository::add(&new_dataset , &pool).await?;
+        MySqlRepository::add(&new_dataset, &pool).await?;
 
         let mut new_fields = vec![];
 
-        dataset.fields.iter()
+        dataset
+            .fields
+            .iter()
             .map(|field| field.clone())
             .map(|mut field| {
                 if field.id.is_empty() {
@@ -131,53 +135,57 @@ impl DataSetResolver {
                 }
                 field.dataset_id = id.clone();
                 field
-            }).for_each(|field| {
-            new_fields.push(field);
-        });
+            })
+            .for_each(|field| {
+                new_fields.push(field);
+            });
         for field in &new_fields {
-            MySqlRepository::add(field , &pool).await?;
+            MySqlRepository::add(field, &pool).await?;
         }
-        Ok(DataSetOutObject{
+        Ok(DataSetOutObject {
             dataset: new_dataset,
 
             fields: new_fields,
         })
     }
 
-    pub async fn find_by_id(id:&String, pool: &MySqlPool) -> Result<DataSetOutObject> {
-        let dataset = MySqlRepository::find_by_id::<Dataset>(id , pool).await?.unwrap();
+    pub async fn find_by_id(id: &String, pool: &MySqlPool) -> Result<DataSetOutObject> {
+        let dataset = MySqlRepository::find_by_id::<Dataset>(id, pool)
+            .await?
+            .unwrap();
 
-        let mut params = BTreeMap :: new();
-        params.insert(String::from("dataset_id") , id.clone());
-        let fields = MySqlRepository::query::<Field>(&params , pool).await?;
+        let mut params = BTreeMap::new();
+        params.insert(String::from("dataset_id"), id.clone());
+        let fields = MySqlRepository::query::<Field>(&params, pool).await?;
 
-        Ok(DataSetOutObject{
-            dataset,
-            fields
-        })
+        Ok(DataSetOutObject { dataset, fields })
     }
 
-    pub async fn find_by_page(page_request:&PageRequest, params:&BTreeMap<String , String>, pool: &MySqlPool) -> Result<Page<DataSetOutObject>> {
-        let dataset_page = MySqlRepository::query_page::<Dataset>(&params ,&page_request ,  pool).await?;
+    pub async fn find_by_page(
+        page_request: &PageRequest,
+        params: &BTreeMap<String, String>,
+        pool: &MySqlPool,
+    ) -> Result<Page<DataSetOutObject>> {
+        let dataset_page =
+            MySqlRepository::query_page::<Dataset>(&params, &page_request, pool).await?;
 
         let mut out_object = vec![];
         for dataset in dataset_page.context {
-            let mut params = BTreeMap :: new();
-            params.insert(String::from("dataset_id") , dataset.id.clone());
-            let fields = MySqlRepository::query::<Field>(&params , pool).await?;
-            out_object.push(DataSetOutObject{
-                dataset,
-                fields
-            })
+            let mut params = BTreeMap::new();
+            params.insert(String::from("dataset_id"), dataset.id.clone());
+            let fields = MySqlRepository::query::<Field>(&params, pool).await?;
+            out_object.push(DataSetOutObject { dataset, fields })
         }
-        let page = Page :: new(dataset_page.size , dataset_page.num , dataset_page.count , dataset_page.total_page , out_object);
+        let page = Page::new(
+            dataset_page.size,
+            dataset_page.num,
+            dataset_page.count,
+            dataset_page.total_page,
+            out_object,
+        );
         Ok(page)
     }
 }
-
-
-
-
 
 // #[async_trait]
 // impl CRUD for Dataset {
@@ -322,25 +330,23 @@ impl CRUD for Field {
     }
 }
 
-
-
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::env;
     use serde::de::DeserializeOwned;
     use serde::Serialize;
     use serde_json::{Map, Value};
+    use std::env;
     use util_crait::uuid_util;
 
     #[tokio::test]
-    async fn test_add() ->  Result<()> {
+    async fn test_add() -> Result<()> {
         dotenv::dotenv().ok();
         let database_url = env::var("DATABASE_URL").expect("DATABASE_URL is not set in .env file");
-        println!("db url is {} " , database_url);
+        println!("db url is {} ", database_url);
         let db_pool = MySqlPool::connect(&database_url).await?;
 
-        let mut  ds = Dataset {
+        let mut ds = Dataset {
             id: "".to_string(),
             name: "".to_string(),
             display_name: "测试数据集".to_string(),
@@ -350,44 +356,44 @@ mod tests {
         };
 
         let field1 = Field {
-            id:"".to_string(),
-            name:"".to_string(),
-            dataset_id:"".to_string(),
-            data_type:DataType::Text.get_type_name(),
-            field_type:"".to_string(),
-            display_name:"组织".to_string(),
-            formula:"".to_string()
+            id: "".to_string(),
+            name: "".to_string(),
+            dataset_id: "".to_string(),
+            data_type: DataType::Text.get_type_name(),
+            field_type: "".to_string(),
+            display_name: "组织".to_string(),
+            formula: "".to_string(),
         };
 
         let field2 = Field {
-            id:"".to_string(),
-            name:"".to_string(),
-            dataset_id:"".to_string(),
-            data_type:DataType::Date.get_type_name(),
-            field_type:"".to_string(),
-            display_name:"时间".to_string(),
-            formula:"".to_string()
+            id: "".to_string(),
+            name: "".to_string(),
+            dataset_id: "".to_string(),
+            data_type: DataType::Date.get_type_name(),
+            field_type: "".to_string(),
+            display_name: "时间".to_string(),
+            formula: "".to_string(),
         };
 
         let field3 = Field {
-            id:"".to_string(),
-            name:"".to_string(),
-            dataset_id:"".to_string(),
-            data_type:DataType::Number.get_type_name(),
-            field_type:"".to_string(),
-            display_name:"本期数".to_string(),
-            formula:"".to_string()
+            id: "".to_string(),
+            name: "".to_string(),
+            dataset_id: "".to_string(),
+            data_type: DataType::Number.get_type_name(),
+            field_type: "".to_string(),
+            display_name: "本期数".to_string(),
+            formula: "".to_string(),
         };
 
-        let fields = vec![field1 , field2 , field3];
+        let fields = vec![field1, field2, field3];
 
-        let  datasetInput = DataSetInputObject{
-            dataset:ds,
+        let datasetInput = DataSetInputObject {
+            dataset: ds,
             fields,
         };
 
         let output = DataSetResolver::create(&datasetInput, &db_pool).await?;
-        println!("{:?}" , output);
+        println!("{:?}", output);
 
         Ok(())
     }
@@ -494,6 +500,4 @@ mod tests {
     //
     //     Ok(())
     // }
-
-
 }

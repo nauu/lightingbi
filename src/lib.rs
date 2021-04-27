@@ -1,2 +1,4 @@
+#[macro_use]
+extern crate log;
+
 pub mod handler;
-pub mod init_config;

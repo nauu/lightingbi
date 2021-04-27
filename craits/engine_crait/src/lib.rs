@@ -1,3 +1,3 @@
 mod engine;
 
-pub use self::engine::{Engine, Engine_Type};
+pub use self::engine::{Engine, EngineType};

@@ -9,14 +9,13 @@ edition = "2018"
 [dependencies]
 anyhow = "1.0.28"
 async-trait = "0.1.48"
-async-graphql = "2.7.3"
-async-graphql-actix-web = "2.7.3"
-sqlx = { version = "0.4.2", features = [ "mysql","runtime-tokio-native-tls", "offline"] }
+async-graphql = { git = "https://github.com/nauu/async-graphql.git", rev = "168755c20a8c2b02c9b3441f8291da2cf459f5d0"}
+async-graphql-warp = { git = "https://github.com/nauu/async-graphql.git", rev = "168755c20a8c2b02c9b3441f8291da2cf459f5d0"}
+sqlx = { version = "0.5.2", features = [ "mysql","runtime-tokio-rustls" ] }
+tokio = { version = "1.0", features = ["full"]}
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0.64"
 dotenv = "0.15.0"
-tokio = { version = "0.2.25", features = ["full"]}
-
 
 
 engine_craits = { path = "../../craits/engine_crait", version = "0.1.0"}

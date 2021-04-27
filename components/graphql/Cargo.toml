@@ -7,11 +7,11 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-async-graphql = "2.7.3"
-async-graphql-actix-web = "2.7.3"
-actix-web = "3"
-#sqlx = { version = "0.4.2", features = [ "mysql","runtime-tokio-rustls" ] }
-sqlx = { version = "0.4.2", features = [ "mysql","runtime-tokio-native-tls" ] }
+warp = "0.3.1"
+tokio = { version = "1", features = ["full"] }
+async-graphql = { git = "https://github.com/nauu/async-graphql.git", rev = "168755c20a8c2b02c9b3441f8291da2cf459f5d0"}
+async-graphql-warp = { git = "https://github.com/nauu/async-graphql.git", rev = "168755c20a8c2b02c9b3441f8291da2cf459f5d0"}
+sqlx = { version = "0.5.2", features = [ "mysql","runtime-tokio-rustls" ] }
 
 user = {path = "../user",version = "0.1.0"}
 dataset = {path = "../dataset",version = "0.1.0"}
