@@ -11,7 +11,7 @@ extern crate lazy_static;
 //     };
 // }
 
-pub(crate) struct Neo4jSession {
+pub struct Neo4jSession {
     graph: Graph,
 }
 // /// Returns a [`Query`] which provides methods like [`Query::param`] to add parameters to the query
