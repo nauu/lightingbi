@@ -13,8 +13,8 @@ vendored = ["openssl-sys/vendored"]
 
 [dependencies]
 warp = "0.3.1"
-async-graphql = { git = "https://github.com/nauu/async-graphql.git", rev = "168755c20a8c2b02c9b3441f8291da2cf459f5d0"}
-async-graphql-warp = { git = "https://github.com/nauu/async-graphql.git", rev = "168755c20a8c2b02c9b3441f8291da2cf459f5d0"}
+async-graphql = { git = "https://gitee.com/nauu/async-graphql.git", rev = "5e58ebfe0098a542919ad0300e3d317b56fc08bd"}
+async-graphql-warp = { git = "https://gitee.com/nauu/async-graphql.git", rev = "5e58ebfe0098a542919ad0300e3d317b56fc08bd"}
 tokio = { version = "1", features = ["full"] }
 neo4rs = "0.5.8"
 log = "0.4.8"
