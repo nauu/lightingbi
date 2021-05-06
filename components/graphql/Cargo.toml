@@ -12,7 +12,9 @@ tokio = { version = "1", features = ["full"] }
 async-graphql = { git = "https://gitee.com/nauu/async-graphql.git", rev = "5e58ebfe0098a542919ad0300e3d317b56fc08bd"}
 async-graphql-warp = { git = "https://gitee.com/nauu/async-graphql.git", rev = "5e58ebfe0098a542919ad0300e3d317b56fc08bd"}
 sqlx = { version = "0.5.2", features = [ "mysql","runtime-tokio-rustls" ] }
+neo4rs = "0.5.8"
 
 user = {path = "../user",version = "0.1.0"}
 dataset = {path = "../dataset",version = "0.1.0"}
 crud_crait = {path = "../../craits/crud_crait",version = "0.1.0"}
+formula = {path = "../formula",version = "0.1.0"}

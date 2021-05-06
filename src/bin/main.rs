@@ -24,7 +24,7 @@ async fn main() -> anyhow::Result<()> {
     let db_pool = MySqlPool::connect(&database_url).await?;
     let neo4j_graph = Neo4jSession::get_graph().await.unwrap();
 
-    let schema = graphql::create_schema(&db_pool);
+    let schema = graphql::create_schema(&db_pool, &neo4j_graph);
 
     let address = env::var("ADDRESS").expect("ADDRESS is not set in .env file");
 
