@@ -9,7 +9,7 @@ use serde_json::Result as jsonResult;
 use std::collections::HashMap;
 use util_crait::uuid_util;
 
-struct FormulaEngine {
+pub struct FormulaEngine {
     /// id
     pub id: String,
     /// 表达式
@@ -28,7 +28,7 @@ impl FormulaEngine {
     }
 
     ///根据id返回一个已经存在的实例
-    fn form(id: String) -> Self {
+    pub fn form(id: String) -> Self {
         Self {
             id,
             formula_strs: "".to_string(),
@@ -36,9 +36,9 @@ impl FormulaEngine {
     }
 
     /// 设置单个节点表达式
-    async fn vals(&mut self, val: String) -> &mut FormulaEngine {
+    pub async fn vals(&mut self, val: String) -> &mut FormulaEngine {
         if !self.formula_strs.is_empty() {
-            self.formula_strs.push_str("##");
+            self.formula_strs.push_str(";");
         }
         self.formula_strs.push_str(&val);
 
@@ -46,7 +46,7 @@ impl FormulaEngine {
     }
 
     ///保存
-    async fn save(&mut self, graph: &Graph) -> core::result::Result<Self, String> {
+    pub async fn save(&mut self, graph: &Graph) -> core::result::Result<Self, String> {
         FormulaEngine::formula_format(&self.formula_strs, &self.id, graph).await
     }
 
@@ -60,7 +60,7 @@ impl FormulaEngine {
         let mut relations = HashMap::<String, Vec<String>>::new();
 
         let mut id = uuid_util::get_uuid();
-        let nodes: Vec<&str> = formula.split("##").collect();
+        let nodes: Vec<&str> = formula.split(";").collect();
         if formula_id.trim().len() > 0 {
             id = formula_id.clone();
         }
@@ -145,8 +145,11 @@ impl FormulaEngine {
     }
 
     ///执行计算
-    async fn run(&mut self, mut params: HashMap<String, String>, graph: &Graph) -> Result<String> {
-
+    pub async fn run(
+        &mut self,
+        mut params: HashMap<String, String>,
+        graph: &Graph,
+    ) -> Result<String> {
         if self.check_cycle(graph).await {
             return Ok("".to_string());
         }
@@ -170,7 +173,6 @@ impl FormulaEngine {
 
         let firstNode: Node = firstRow.get("leftNode").unwrap();
         let mut first_formula = firstNode.get("formula").unwrap();
-
 
         let result: f64 = self.eval_formula(&params, first_formula).await.unwrap();
         println!("result:{}", result);
@@ -362,25 +364,27 @@ mod tests {
     use crate::neo4j_session::Neo4jSession;
     use std::time::{SystemTime, UNIX_EPOCH};
 
-    // a=10##b=20##f=getvalue(1,2,3,4,'abc')+1##c=$a+$b##g=$c*$f##
+    // a=10;b=20;f=getvalue(1,2,3,4,'abc')+1;c=$a+$b;g=$c*$f;;
     #[tokio::test]
     async fn it_works() -> Result<()> {
         let graph = Neo4jSession::get_graph().await?;
-        let formula = "a=10##b=20##f=avg([a],[b],[c],4)+1##c=[a]*[b]##g=[c]*[f]";
-        let le = FormulaEngine::formula_format(
+        let formula = "a=10;b=20;f=avg([a],[b],[c],4)+1;c=[a]*[b];g=[c]*[f]";
+        let mut fe = FormulaEngine::formula_format(
             &*formula.to_string(),
             &"test_formula_id".to_string(),
             &graph,
         )
         .await
         .unwrap();
+        let mut params = HashMap::<String, String>::new();
+        let v = fe.run(params, &graph).await;
         Ok(())
     }
 
     #[tokio::test]
     async fn test_vals() -> Result<()> {
         let graph = Neo4jSession::get_graph().await?;
-        let formula = "a=10##b=20##f=avg([a],[b],[c],4)+1##c=[a]*[b]##g=[c]*[f]";
+        let formula = "a=10;b=20;f=avg([a],[b],[c],4)+1;c=[a]*[b];g=[c]*[f]";
         let mut fe = FormulaEngine::form((&"test_formula_id_2").to_string());
         fe.vals("a=10".to_string()).await;
         fe.vals("b=20".to_string()).await;
@@ -402,8 +406,8 @@ mod tests {
         let mut fe = FormulaEngine::form((&"test_formula_id_1").to_string());
         let graph = Neo4jSession::get_graph().await?;
         let mut params = HashMap::<String, String>::new();
-        params.insert("a".to_string(), "10".to_string());
-        params.insert("b".to_string(), "20".to_string());
+        // params.insert("a".to_string(), "10".to_string());
+        // params.insert("b".to_string(), "20".to_string());
         let v = fe.run(params, &graph).await;
         println!("value:{}", v.unwrap());
         Ok(())

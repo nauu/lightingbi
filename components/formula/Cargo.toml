@@ -17,5 +17,7 @@ serde = { version = "1.0", features = ["derive"] }
 regex = "1.4.5"
 lazy_static = "1.1.1"
 serde_json = "1.0.64"
+async-graphql = { git = "https://gitee.com/nauu/async-graphql.git", rev = "5e58ebfe0098a542919ad0300e3d317b56fc08bd"}
+async-graphql-warp = { git = "https://gitee.com/nauu/async-graphql.git", rev = "5e58ebfe0098a542919ad0300e3d317b56fc08bd"}
 
 util_crait = { path = "../../craits/util_crait", version = "0.1.0"}
