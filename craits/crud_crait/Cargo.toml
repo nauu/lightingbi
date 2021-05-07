@@ -12,6 +12,6 @@ async-trait = "0.1.48"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0.64"
 dotenv = "0.15.0"
-async-graphql = { git = "https://gitee.com/nauu/async-graphql.git", rev = "5e58ebfe0098a542919ad0300e3d317b56fc08bd"}
+async-graphql = { git = "https://github.com/nauu/async-graphql.git", rev = "cabe7808b5357c33873e5dc51dfd617e7b810ec5"}
 sqlx = { version = "0.5.2", features = [ "mysql","runtime-tokio-rustls" ] }
 tokio = { version = "1.0", features = ["full"]}

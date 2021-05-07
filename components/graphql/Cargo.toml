@@ -9,8 +9,8 @@ edition = "2018"
 [dependencies]
 warp = "0.3.1"
 tokio = { version = "1", features = ["full"] }
-async-graphql = { git = "https://gitee.com/nauu/async-graphql.git", rev = "5e58ebfe0098a542919ad0300e3d317b56fc08bd"}
-async-graphql-warp = { git = "https://gitee.com/nauu/async-graphql.git", rev = "5e58ebfe0098a542919ad0300e3d317b56fc08bd"}
+async-graphql = { git = "https://github.com/nauu/async-graphql.git", rev = "cabe7808b5357c33873e5dc51dfd617e7b810ec5"}
+async-graphql-warp = { git = "https://github.com/nauu/async-graphql.git", rev = "cabe7808b5357c33873e5dc51dfd617e7b810ec5"}
 sqlx = { version = "0.5.2", features = [ "mysql","runtime-tokio-rustls" ] }
 neo4rs = "0.5.8"
 
