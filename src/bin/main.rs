@@ -4,7 +4,6 @@ extern crate pretty_env_logger;
 
 use async_graphql::http::{playground_source, GraphQLPlaygroundConfig};
 use dotenv;
-use formula::neo4j_session;
 use formula::neo4j_session::Neo4jSession;
 use graphql::RootSchema;
 use lightingbi::handler::{default, query};
