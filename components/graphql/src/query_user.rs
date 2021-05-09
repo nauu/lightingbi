@@ -1,5 +1,4 @@
 use async_graphql::{Context, FieldResult, Object};
-use crud_crait::CRUD;
 use sqlx::MySqlPool;
 use user::User;
 
@@ -14,6 +13,4 @@ impl QueryUser {
         println!("users: {:?}", users);
         Ok(users)
     }
-
-
 }
