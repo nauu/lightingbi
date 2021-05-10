@@ -6,7 +6,7 @@ pub mod query_user;
 
 pub use self::query_root::QueryRoot;
 use crate::query_root::MutationRoot;
-use async_graphql::{EmptyMutation, EmptySubscription, Schema};
+use async_graphql::{EmptySubscription, Schema};
 use neo4rs::Graph;
 use sqlx::MySqlPool;
 use std::sync::Arc;
