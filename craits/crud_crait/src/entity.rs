@@ -3,7 +3,6 @@ use async_graphql::{InputObject, OutputType, SimpleObject};
 use async_trait::async_trait;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
-use serde_json::map::Values;
 use serde_json::Value;
 use sqlx::mysql::{MySqlArguments, MySqlRow};
 use sqlx::query::QueryAs;
