@@ -3,7 +3,7 @@ use crate::formula_node::*;
 use crate::neo4j_session::Node_Source_Type;
 use evalexpr::*;
 use neo4rs::{query, Graph, Node, Result, Row, RowStream};
-use regex::{Captures, Regex};
+use regex::Regex;
 use serde::{Deserialize, Serialize};
 use serde_json::Result as jsonResult;
 use std::collections::HashMap;
