@@ -1,5 +1,5 @@
 use crate::neo4j_session::Node_Source_Type;
-use async_graphql::{Object, OutputJson};
+use async_graphql::Object;
 use serde::{Deserialize, Serialize};
 use std::error::Error;
 
