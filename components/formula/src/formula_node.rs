@@ -1,4 +1,4 @@
-use crate::neo4j_session::Node_Source_Type;
+use crate::neo4j_session::NodeSourceType;
 use serde::{Deserialize, Serialize};
 
 ///计算节点
@@ -9,7 +9,7 @@ pub struct FormulaNode {
     ///公式
     formula: String,
     ///所属的数据源
-    node_type: Node_Source_Type,
+    node_type: NodeSourceType,
     ///所以完整公式的ID
     formula_id: String,
 }
@@ -19,7 +19,7 @@ impl FormulaNode {
         Self {
             key,
             formula,
-            node_type: Node_Source_Type::Formula,
+            node_type: NodeSourceType::Formula,
             formula_id,
         }
     }

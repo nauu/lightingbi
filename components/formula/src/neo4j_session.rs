@@ -19,14 +19,14 @@ pub struct Neo4jSession {
 // }
 
 #[derive(Debug, Deserialize, Serialize, Copy, Clone)]
-pub enum Node_Source_Type {
+pub enum NodeSourceType {
     Formula,
 }
 
-impl Node_Source_Type {
+impl NodeSourceType {
     pub fn getType(&self) -> String {
         match self {
-            Node_Source_Type::Formula => "Formula".to_string(),
+            NodeSourceType::Formula => "Formula".to_string(),
         }
     }
 }

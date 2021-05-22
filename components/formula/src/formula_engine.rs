@@ -1,6 +1,6 @@
 use crate::formula_function_default::*;
 use crate::formula_node::*;
-use crate::neo4j_session::Node_Source_Type;
+use crate::neo4j_session::NodeSourceType;
 use evalexpr::*;
 use neo4rs::{query, Graph, Node, Result, Row, RowStream};
 use regex::Regex;
@@ -115,7 +115,7 @@ impl FormulaEngine {
             key,
             key,
             value,
-            Node_Source_Type::Formula.getType(),
+            NodeSourceType::Formula.getType(),
             id
         );
         neo4j_sql.push_str(&sql);
@@ -133,7 +133,7 @@ impl FormulaEngine {
                 let create_sql = format!(
                     "create ({})-[:relation {{node_type:'{}'}}]->({})\r",
                     key,
-                    Node_Source_Type::Formula.getType(),
+                    NodeSourceType::Formula.getType(),
                     right
                 );
                 neo4j_sql.push_str(&create_sql);
@@ -254,7 +254,7 @@ impl FormulaEngine {
     async fn delete_by_id(&mut self, graph: &Graph) -> Result<()> {
         let q = query("MATCH (n:Formula) where n.formula_id = $formula_id and n.node_type=$node_type  DETACH DELETE n")
             .param("formula_id", self.id.clone())
-            .param("node_type", Node_Source_Type::Formula.getType());
+            .param("node_type", NodeSourceType::Formula.getType());
         graph.run(q).await;
         Ok(())
     }
