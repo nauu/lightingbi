@@ -1,5 +1,4 @@
 use evalexpr::*;
-use std::collections::HashMap;
 pub struct FormulaFunctionDefault {}
 
 impl FormulaFunctionDefault {
