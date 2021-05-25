@@ -333,6 +333,7 @@ impl CRUD for Field {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use engine_craits::EngineType;
     use serde::de::DeserializeOwned;
     use serde::Serialize;
     use serde_json::{Map, Value};
@@ -350,7 +351,7 @@ mod tests {
             id: "".to_string(),
             name: "".to_string(),
             display_name: "测试数据集".to_string(),
-            engine_type: Engine_Type::ClickHouse.getType(),
+            engine_type: EngineType::ClickHouse.get_type(),
             size: 0.0,
             count: 0,
         };
