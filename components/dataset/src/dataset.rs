@@ -203,7 +203,7 @@ impl DataSetResolver {
 //             .bind(&new_dataset.id)
 //             .bind(&new_dataset.name)
 //             .bind(&new_dataset.display_name)
-//             .bind(&new_dataset.engine_type.getType())
+//             .bind(&new_dataset.engine_type.get_type())
 //             .bind(&new_dataset.size)
 //             .bind(&new_dataset.count)
 //             .execute(&mut tx)
@@ -240,7 +240,7 @@ impl DataSetResolver {
 //         let mut tx = pool.begin().await?;
 //         let rows_affected = sqlx::query("UPDATE t_lighting_dataset SET display_name = ?,engine_type = ? , size = ? ,  count = ? WHERE id = ?")
 //             .bind(dataset.display_name)
-//             .bind(dataset.engine_type.getType())
+//             .bind(dataset.engine_type.get_type())
 //             .bind(dataset.size)
 //             .bind(dataset.count)
 //             .bind(dataset.id)

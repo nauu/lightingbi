@@ -24,7 +24,7 @@ pub enum NodeSourceType {
 }
 
 impl NodeSourceType {
-    pub fn getType(&self) -> String {
+    pub fn get_type(&self) -> String {
         match self {
             NodeSourceType::Formula => "Formula".to_string(),
         }

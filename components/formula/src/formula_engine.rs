@@ -115,7 +115,7 @@ impl FormulaEngine {
             key,
             key,
             value,
-            NodeSourceType::Formula.getType(),
+            NodeSourceType::Formula.get_type(),
             id
         );
         neo4j_sql.push_str(&sql);
@@ -133,7 +133,7 @@ impl FormulaEngine {
                 let create_sql = format!(
                     "create ({})-[:relation {{node_type:'{}'}}]->({})\r",
                     key,
-                    NodeSourceType::Formula.getType(),
+                    NodeSourceType::Formula.get_type(),
                     right
                 );
                 neo4j_sql.push_str(&create_sql);
@@ -254,7 +254,7 @@ impl FormulaEngine {
     async fn delete_by_id(&mut self, graph: &Graph) -> Result<()> {
         let q = query("MATCH (n:Formula) where n.formula_id = $formula_id and n.node_type=$node_type  DETACH DELETE n")
             .param("formula_id", self.id.clone())
-            .param("node_type", NodeSourceType::Formula.getType());
+            .param("node_type", NodeSourceType::Formula.get_type());
         graph.run(q).await;
         Ok(())
     }
