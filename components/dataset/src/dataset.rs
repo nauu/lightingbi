@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 use sqlx::{FromRow, MySqlPool};
 use util_crait::uuid_util;
 
-use async_graphql::{InputObject, OutputType, Positioned, ServerResult, SimpleObject};
+use async_graphql::{InputObject, Positioned, ServerResult, SimpleObject};
 use crud_crait::entity::{Entity, MySqlRepository, Page, PageRequest};
 use std::collections::BTreeMap;
 
