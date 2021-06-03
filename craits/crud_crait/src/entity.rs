@@ -5,7 +5,6 @@ use serde::de::DeserializeOwned;
 use serde::Serialize;
 use serde_json::Value;
 use sqlx::mysql::{MySqlArguments, MySqlRow};
-use sqlx::query::QueryAs;
 use sqlx::Arguments;
 use sqlx::{Database, FromRow, MySql, MySqlPool, Pool, Row};
 use std::cell::RefCell;
