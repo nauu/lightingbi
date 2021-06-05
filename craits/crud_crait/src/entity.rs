@@ -402,7 +402,7 @@ mod tests {
     use serde::{Deserialize, Serialize};
     use sqlx::mysql::{MySqlArguments, MySqlDatabaseError};
     use sqlx::Arguments;
-    use sqlx::{Database, Encode, MySql, MySqlPool, Type};
+    use sqlx::{Encode, MySql, MySqlPool, Type};
     use std::collections::BTreeMap;
     use std::env;
 
