@@ -7,7 +7,6 @@ use serde_json::Value;
 use sqlx::mysql::{MySqlArguments, MySqlRow};
 use sqlx::Arguments;
 use sqlx::{Database, FromRow, MySql, MySqlPool, Pool, Row};
-use std::cell::RefCell;
 use std::collections::BTreeMap;
 use std::env;
 use std::error::Error;
