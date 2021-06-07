@@ -9,7 +9,6 @@ use sqlx::Arguments;
 use sqlx::{Database, FromRow, MySql, MySqlPool, Pool, Row};
 use std::collections::BTreeMap;
 use std::env;
-use std::error::Error;
 use std::fmt::Debug;
 use std::fs::read;
 use std::future::Future;
