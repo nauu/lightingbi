@@ -10,7 +10,6 @@ use sqlx::{Database, FromRow, MySql, MySqlPool, Pool, Row};
 use std::collections::BTreeMap;
 use std::env;
 use std::fmt::Debug;
-use std::future::Future;
 use std::iter::Map;
 use std::net::ToSocketAddrs;
 use std::rc::Rc;
