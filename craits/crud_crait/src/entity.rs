@@ -6,7 +6,7 @@ use serde::Serialize;
 use serde_json::Value;
 use sqlx::mysql::{MySqlArguments, MySqlRow};
 use sqlx::Arguments;
-use sqlx::{Database, FromRow, MySqlPool, Row};
+use sqlx::{FromRow, MySqlPool, Row};
 use std::collections::BTreeMap;
 use std::env;
 use std::fmt::Debug;
