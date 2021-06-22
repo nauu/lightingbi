@@ -3,7 +3,6 @@ use formula::formula_engine::FormulaEngine;
 use formula::formula_node::*;
 use formula::*;
 use neo4rs::{query, Graph};
-use sqlx::MySqlPool;
 use std::collections::HashMap;
 use std::sync::Arc;
 use user::User;
