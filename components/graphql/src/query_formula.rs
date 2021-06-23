@@ -2,7 +2,7 @@ use async_graphql::{Context, FieldResult, Object, OutputJson};
 use formula::formula_engine::FormulaEngine;
 use formula::formula_node::*;
 use formula::*;
-use neo4rs::{query, Graph};
+use neo4rs::Graph;
 use std::collections::HashMap;
 
 use user::User;
