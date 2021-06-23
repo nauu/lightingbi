@@ -4,7 +4,7 @@ use formula::formula_node::*;
 use formula::*;
 use neo4rs::{query, Graph};
 use std::collections::HashMap;
-use std::sync::Arc;
+
 use user::User;
 
 #[derive(Default)]
