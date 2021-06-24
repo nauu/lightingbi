@@ -5,8 +5,6 @@ use formula::*;
 use neo4rs::Graph;
 use std::collections::HashMap;
 
-use user::User;
-
 #[derive(Default)]
 pub struct QueryFormula;
 
