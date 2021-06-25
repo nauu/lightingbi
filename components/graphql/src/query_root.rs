@@ -3,7 +3,6 @@ use crate::query_formula::QueryFormula;
 use crate::query_user::QueryUser;
 use async_graphql::{Context, FieldResult, MergedObject, Object};
 use sqlx::MySqlPool;
-use user::User;
 
 #[derive(MergedObject, Default)]
 pub struct QueryRoot(QueryUser, QueryDataset, QueryFormula);
