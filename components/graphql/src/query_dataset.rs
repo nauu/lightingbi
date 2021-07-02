@@ -1,6 +1,5 @@
 use async_graphql::{Context, FieldResult, Object};
 use crud_crait::entity::{Page, PageRequest};
-use crud_crait::CRUD;
 use dataset::{DataSetInputObject, DataSetOutObject, DataSetResolver};
 use sqlx::MySqlPool;
 use std::collections::BTreeMap;
