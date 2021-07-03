@@ -231,7 +231,7 @@ impl FormulaEngine {
             for j in 0..c.len() {
                 let node = String::from(&c[j]);
                 let node = node.replace("[", "");
-                let mut rn = node.replace("]", "");
+                let rn = node.replace("]", "");
                 if !list.contains(&rn) {
                     list.push((&rn.as_str()).to_string());
                 }
