@@ -93,7 +93,7 @@ impl FormulaEngine {
             relations = me.get_relation(&(key.to_string()), value, relations).await;
         }
         println!("node_str：{}", &node_str);
-        let mut node_str = me.get_relations_sql(node_str, &relations).await;
+        let node_str = me.get_relations_sql(node_str, &relations).await;
         println!("last：{}", &node_str);
         &graph.run(query(&*node_str)).await;
         // println!("{}", relations);
