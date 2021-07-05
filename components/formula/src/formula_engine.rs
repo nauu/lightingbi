@@ -143,11 +143,7 @@ impl FormulaEngine {
     }
 
     ///执行计算
-    pub async fn run(
-        &mut self,
-        mut params: HashMap<String, String>,
-        graph: &Graph,
-    ) -> Result<String> {
+    pub async fn run(&mut self, params: HashMap<String, String>, graph: &Graph) -> Result<String> {
         if self.check_cycle(graph).await {
             return Ok("".to_string());
         }
