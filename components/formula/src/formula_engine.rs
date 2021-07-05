@@ -155,8 +155,8 @@ impl FormulaEngine {
             return Ok("".to_string());
         }
 
-        let firstRow: Row = firstRowOption.unwrap();
-        let mut params = self.node_calculation(params, &firstRow).await;
+        let first_row: Row = firstRowOption.unwrap();
+        let mut params = self.node_calculation(params, &first_row).await;
 
         while let Ok(Some(row)) = result.next().await {
             let node: Node = row.get("leftNode").unwrap();
@@ -165,7 +165,7 @@ impl FormulaEngine {
             params = self.node_calculation(params, &row).await;
         }
 
-        let firstNode: Node = firstRow.get("leftNode").unwrap();
+        let firstNode: Node = first_row.get("leftNode").unwrap();
         let mut first_formula = firstNode.get("formula").unwrap();
 
         let result: f64 = self.eval_formula(&params, first_formula).await.unwrap();
