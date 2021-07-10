@@ -147,7 +147,7 @@ impl FormulaEngine {
         if self.check_cycle(graph).await {
             return Ok("".to_string());
         }
-        let q = query("MATCH p = ((leftNode)-[rel:relation*]->(rightNode)) where leftNode.formula_id=$formula_id  RETURN leftNode,rel,rightNode ,length(p) as depth order by depth desc").param("formula_id",self.id.clone());
+        let q = query("MATCH p = ((leftNode)-[rel:relation*]->(right_node)) where leftNode.formula_id=$formula_id  RETURN leftNode,rel,right_node ,length(p) as depth order by depth desc").param("formula_id",self.id.clone());
         let mut result = graph.execute(q).await.unwrap();
 
         let firstRowOption = result.next().await.unwrap();
@@ -179,11 +179,11 @@ impl FormulaEngine {
         mut params: HashMap<String, String>,
         row: &Row,
     ) -> HashMap<String, String> {
-        let rightNode: Node = row.get("rightNode").unwrap();
-        let rightName: String = rightNode.get("name").unwrap();
+        let right_node: Node = row.get("right_node").unwrap();
+        let rightName: String = right_node.get("name").unwrap();
 
         if !params.contains_key(&rightName) {
-            let mut formula: String = rightNode.get("formula").unwrap();
+            let mut formula: String = right_node.get("formula").unwrap();
             let v: f64 = self.eval_formula(&params, formula).await.unwrap();
             params.insert(rightName.clone(), v.to_string());
         }
@@ -262,7 +262,7 @@ impl FormulaEngine {
 
     ///返回公式的树形依赖结构
     pub async fn tree_by_id(formula_id: &String, graph: &Graph) -> Result<FormulaTree> {
-        let q = query("MATCH p = ((leftNode)-[rel:relation*]->(rightNode)) where leftNode.formula_id=$formula_id and length(p) =1  RETURN leftNode,rel,rightNode ,length(p) as depth order by depth desc").param("formula_id",formula_id.clone());
+        let q = query("MATCH p = ((leftNode)-[rel:relation*]->(right_node)) where leftNode.formula_id=$formula_id and length(p) =1  RETURN leftNode,rel,right_node ,length(p) as depth order by depth desc").param("formula_id",formula_id.clone());
         let mut result = graph.execute(q).await.unwrap();
         let mut nodes = Vec::<FormulaNode>::new();
         let mut relations = Vec::<FormulaNodeRelation>::new();
@@ -287,8 +287,8 @@ impl FormulaEngine {
                 ));
             }
 
-            let rightNode: Node = row.get("rightNode").unwrap();
-            let rightName: String = rightNode.get("name").unwrap();
+            let right_node: Node = row.get("right_node").unwrap();
+            let rightName: String = right_node.get("name").unwrap();
 
             let mut target_index = 1;
             if nodesMap.contains_key(&rightName) {
