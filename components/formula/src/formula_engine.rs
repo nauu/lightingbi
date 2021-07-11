@@ -180,12 +180,12 @@ impl FormulaEngine {
         row: &Row,
     ) -> HashMap<String, String> {
         let right_node: Node = row.get("right_node").unwrap();
-        let rightName: String = right_node.get("name").unwrap();
+        let right_name: String = right_node.get("name").unwrap();
 
-        if !params.contains_key(&rightName) {
+        if !params.contains_key(&right_name) {
             let mut formula: String = right_node.get("formula").unwrap();
             let v: f64 = self.eval_formula(&params, formula).await.unwrap();
-            params.insert(rightName.clone(), v.to_string());
+            params.insert(right_name.clone(), v.to_string());
         }
         params
     }
@@ -288,18 +288,18 @@ impl FormulaEngine {
             }
 
             let right_node: Node = row.get("right_node").unwrap();
-            let rightName: String = right_node.get("name").unwrap();
+            let right_name: String = right_node.get("name").unwrap();
 
             let mut target_index = 1;
-            if nodesMap.contains_key(&rightName) {
-                target_index = nodesMap.get(&rightName).unwrap().clone();
+            if nodesMap.contains_key(&right_name) {
+                target_index = nodesMap.get(&right_name).unwrap().clone();
             } else {
                 target_index = nodesMap.len() as i32;
 
-                nodesMap.insert(rightName.clone(), target_index + 1);
+                nodesMap.insert(right_name.clone(), target_index + 1);
 
                 nodes.push(FormulaNode::new(
-                    rightName,
+                    right_name,
                     leftNode.get("formula").unwrap(),
                     formula_id.clone(),
                 ));
