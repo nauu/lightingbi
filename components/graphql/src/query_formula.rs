@@ -25,7 +25,7 @@ impl QueryFormula {
         let mut fe = FormulaEngine::formula_format(&*formula.to_string(), &"".to_string(), &graph)
             .await
             .unwrap();
-        let mut params = HashMap::<String, String>::new();
+        let params = HashMap::<String, String>::new();
         let v = fe.run(params, &graph).await.unwrap();
 
         Ok(v)
