@@ -166,7 +166,7 @@ impl FormulaEngine {
         }
 
         let first_node: Node = first_row.get("leftNode").unwrap();
-        let mut first_formula = first_node.get("formula").unwrap();
+        let first_formula = first_node.get("formula").unwrap();
 
         let result: f64 = self.eval_formula(&params, first_formula).await.unwrap();
         println!("result:{}", result);
