@@ -150,12 +150,12 @@ impl FormulaEngine {
         let q = query("MATCH p = ((leftNode)-[rel:relation*]->(right_node)) where leftNode.formula_id=$formula_id  RETURN leftNode,rel,right_node ,length(p) as depth order by depth desc").param("formula_id",self.id.clone());
         let mut result = graph.execute(q).await.unwrap();
 
-        let firstRowOption = result.next().await.unwrap();
-        if !firstRowOption.is_some() {
+        let first_row_option = result.next().await.unwrap();
+        if !first_row_option.is_some() {
             return Ok("".to_string());
         }
 
-        let first_row: Row = firstRowOption.unwrap();
+        let first_row: Row = first_row_option.unwrap();
         let mut params = self.node_calculation(params, &first_row).await;
 
         while let Ok(Some(row)) = result.next().await {
@@ -323,9 +323,9 @@ impl FormulaEngine {
 
         let mut result = graph.execute(q).await.unwrap();
 
-        let firstRowOption = result.next().await.unwrap();
+        let first_row_option = result.next().await.unwrap();
 
-        firstRowOption.is_some()
+        first_row_option.is_some()
     }
 
     ///检查公式是否有循环依赖 true 存在依赖
@@ -334,9 +334,9 @@ impl FormulaEngine {
 
         let mut result = graph.execute(q).await.unwrap();
 
-        let firstRowOption = result.next().await.unwrap();
+        let first_row_option = result.next().await.unwrap();
 
-        firstRowOption.is_some()
+        first_row_option.is_some()
     }
 
     ///打印公式信息
