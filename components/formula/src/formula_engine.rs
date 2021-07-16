@@ -183,7 +183,7 @@ impl FormulaEngine {
         let right_name: String = right_node.get("name").unwrap();
 
         if !params.contains_key(&right_name) {
-            let mut formula: String = right_node.get("formula").unwrap();
+            let formula: String = right_node.get("formula").unwrap();
             let v: f64 = self.eval_formula(&params, formula).await.unwrap();
             params.insert(right_name.clone(), v.to_string());
         }
