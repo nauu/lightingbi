@@ -267,7 +267,7 @@ impl FormulaEngine {
         let mut nodes = Vec::<FormulaNode>::new();
         let mut relations = Vec::<FormulaNodeRelation>::new();
         let mut nodesMap = HashMap::<String, i32>::new();
-        let mut relationKeys = Vec::<String>::new();
+        let relationKeys = Vec::<String>::new();
         while let Ok(Some(row)) = result.next().await {
             let leftNode: Node = row.get("leftNode").unwrap();
             let leftName: String = leftNode.get("name").unwrap();
