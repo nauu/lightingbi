@@ -98,7 +98,7 @@ impl FormulaEngine {
         &graph.run(query(&*node_str)).await;
         // println!("{}", relations);
         println!("node_str：{}", node_str);
-        let fs = formula.clone();
+        // let fs = formula.clone();
         Ok(me)
     }
 
