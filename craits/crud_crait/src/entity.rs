@@ -94,7 +94,7 @@ pub trait Entity: Send + Sync + Serialize + DeserializeOwned + Debug + OutputTyp
         let mut name = type_name.to_string();
         let names: Vec<&str> = name.split("::").collect();
         name = names.get(names.len() - 1).unwrap_or(&"").to_string();
-        let mut pre = env::var("TABLE_NAMESPACE").unwrap_or("t_lighting".to_string());
+        let pre = env::var("TABLE_NAMESPACE").unwrap_or("t_lighting".to_string());
         name = to_snake_name(&name).await?;
         Ok(pre + "_" + name.as_str())
     }
