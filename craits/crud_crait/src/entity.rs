@@ -160,7 +160,7 @@ impl MySqlRepository {
         T: for<'r> FromRow<'r, MySqlRow> + Send + Unpin + Debug + Entity,
     {
         let table_name = T::table_name().await?;
-        let mut sql = format!("select * from {} ", table_name);
+        let sql = format!("select * from {} ", table_name);
         let (mut sql_with_param, mut param_values) = Self::add_params_to_sql(sql, params).await?;
         let arg = Self::covert_param_values_to_arg(param_values).await?;
         let mut result = sqlx::query_as_with::<_, T, MySqlArguments>(&sql_with_param, arg)
